@@ -1,0 +1,9 @@
+/home/zabello/vscode_project/OTUS_homework/super_project/build/CMakeFiles/penguin.dir
+/home/zabello/vscode_project/OTUS_homework/super_project/build/CMakeFiles/package.dir
+/home/zabello/vscode_project/OTUS_homework/super_project/build/CMakeFiles/package_source.dir
+/home/zabello/vscode_project/OTUS_homework/super_project/build/CMakeFiles/edit_cache.dir
+/home/zabello/vscode_project/OTUS_homework/super_project/build/CMakeFiles/rebuild_cache.dir
+/home/zabello/vscode_project/OTUS_homework/super_project/build/CMakeFiles/list_install_components.dir
+/home/zabello/vscode_project/OTUS_homework/super_project/build/CMakeFiles/install.dir
+/home/zabello/vscode_project/OTUS_homework/super_project/build/CMakeFiles/install/local.dir
+/home/zabello/vscode_project/OTUS_homework/super_project/build/CMakeFiles/install/strip.dir

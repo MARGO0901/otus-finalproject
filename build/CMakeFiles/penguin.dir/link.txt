@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/penguin.dir/main.cpp.o CMakeFiles/penguin.dir/game.cpp.o CMakeFiles/penguin.dir/device.cpp.o CMakeFiles/penguin.dir/malfunction.cpp.o CMakeFiles/penguin.dir/penguin.cpp.o -o penguin 
