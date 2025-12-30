@@ -25,7 +25,7 @@ public:
     const std::map<std::string, double> &getParams() const { return params; }
 
     //Метод для изменения параметров (для тестирования)
-    void setParam(const std::string& key, double value) {
+    void setParam(const std::string& key, double &value) {
         params[key] = value;
     }
 
