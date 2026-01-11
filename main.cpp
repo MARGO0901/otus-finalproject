@@ -5,7 +5,7 @@ int main() {
     Game game;
 
     game.runLevel(1);
-    if(game.getTotalScore() >= 200) {
+/*    if(game.getTotalScore() >= 200) {
         std::cout << "Level 1 completed!" << std::endl;
         
         // Уровень 2
@@ -20,6 +20,7 @@ int main() {
 
     std::cout << "Game over!" << std::endl;
     std::cout << "Your qualifications: " << game.getQualification() << std::endl;
+*/
 
     return 0;
 }
