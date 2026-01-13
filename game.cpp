@@ -1,63 +1,97 @@
 #include "game.h"
 
+#include <iomanip>
+#include <ios>
+#include <mutex>
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
 
+#include "consolemanager.h"
+
+static std::mutex outputMutex;
+
 Game::Game() : currentLevel(1), totalScore(0) {
+
+    penguin.say("Привет!");
+
     devices.push_back(std::make_unique<Pump>());
     //devices.push_back(std::make_unique<Fan>());
-    //devices.push_back(std::make_unique<Compressor>());
+    //devices.push_back(std::make_unique<Compressor>());  
 
     // Поток ввода (НЕБЛОКИРУЮЩИЙ)
     inputThread = std::thread(&Game::inputLoop, this);
-
-    penguin.say("Привет!");
 }
+
 
 Game::~Game() {
     running = false;
     if (inputThread.joinable()) {
         inputThread.join();
     }
-}
-
-// Перемещение курсора
-void Game::gotoxy(int x, int y) {
-    std::cout << "\033[" << (y + 1) << ";" << (x + 1) << "H" << std::flush;
+    // Восстанавливаем видимость курсора
+    std::cout << "\033[?25h\033[0m" << std::flush;
 }
 
 
 void Game::inputLoop() {
-    // нормальные настройки терминала    
+    // сохранить настройки терминала    
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
-    // канонический режим для getline
-    newt.c_lflag |= (ICANON | ECHO);  
+
+    // установить неканонический режим
+    newt.c_lflag &= ~(ICANON | ECHO);  
+    newt.c_cc[VMIN] = 1;    //минимальное кол-во символов
+    newt.c_cc[VTIME] = 0;   //таймаут 0
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    
+
+    std::string line;
+            
+    // считывать символы по одному
     while (running) {
-        std::string line;
-        
-        // Используем getline - он будет блокировать
-        if (std::getline(std::cin, line)) {
+
+        char ch;
+
+        // Пытаемся прочитать символ
+        int bytesRead = read(STDIN_FILENO, &ch, 1);
+        if (bytesRead <= 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            continue;
+        }
+
+        // Обработка символа
+        if (ch == '\n' || ch == '\r') {  // Enter
             if (!line.empty()) {
                 {
                     std::lock_guard<std::mutex> lock(mtx);
                     inputBuffer = line;
                 }
                 cv.notify_one();
-                clearInputLine();
+                line.clear();
+
+                ConsoleManager::clearInputLine(9);
+                ConsoleManager::showPrompt(9);
             }
-        } else {
-            // Произошла ошибка или EOF
-            break;
         }
+        else if (ch == 127 || ch == 8) {  // Backspace
+            if (!line.empty()) {
+                line.pop_back();
+                ConsoleManager::print("\b \b");
+            }
+        }
+        else if (ch >= 32 && ch <= 126) {  // Печатные символы
+            line += ch;
+            ConsoleManager::print(ch);
+        }
+        // Игнорируем остальные символы
     }
     
     // Восстанавливаем настройки
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
+    // Восстанавливаем видимость курсора
+    ConsoleManager::showCursor();
 }
 
 
@@ -72,17 +106,10 @@ bool Game::getCommand(std::string& cmd) {
     return false;
 }
 
-void Game::clearInputLine() {
-    // Очищаем строку 9 (где вводится команда)
-    gotoxy(0, 9);
-    std::cout << "\033[2K";  // Очистить всю строку
-    // Возвращаем курсор в начало строки 9
-    gotoxy(0, 9);
-    std::cout.flush();
-}
 
 void Game::runLevel(int level) {
-    currentLevel = level;  // <- добавьте эту строку!
+    currentLevel = level; 
+
     penguin.say("Начинаем уровень " + std::to_string(currentLevel));
 
     int tasks = (level == 1) ? 3 : (level == 2) ? 6 : 9;
@@ -98,6 +125,7 @@ void Game::runLevel(int level) {
         std::string msg = "Задача " + std::to_string(task + 1) + "/" + 
                          std::to_string(tasks) + ". Выбери устройство для починки!";
         penguin.say(msg);
+        ConsoleManager::gotoxy(2, 9);
 
         // 5. Ждем ввод пользователя
         std::string userInput;
@@ -127,7 +155,7 @@ void Game::runLevel(int level) {
 
         if(!running) break;
         
-        // 6. Проверяем решение
+        //Проверяем решение
         bool correct = checkSolution(/* параметры */);
         updateScore(correct);
         
@@ -173,6 +201,7 @@ void Game::processUserInput(const std::string& input) {
     }
 }
 
+
 void Game::generateProblems(int count) {
     currentProblems.clear();
 
@@ -190,21 +219,34 @@ void Game::generateProblems(int count) {
     }
 }
 
-void Game::showDevicesStatus() {
-    //Показать пингвина
-    penguin.show();
-    std::cout << std::endl;
 
-    //Показать приборы
-    std::cout << "===Devices===\n";
+void Game::showDevicesStatus() {    
+    // Очищаем область под пингвином (строки 5-9)
+    for (int i = 5; i <= 9; i++) {
+        ConsoleManager::clearInputLine(i);
+    }
+
+    // Показать приборы
+    ConsoleManager::gotoxy(0, 6);
+    ConsoleManager::print("===Devices===\n");
     for (auto &device : devices) {
+        std::string params;
         std::cout << device->getName() << ": ";
         for(auto& [param, value] : device->getParams()) {
-            std::cout << param << " = " << value << " ";
+            std::ostringstream val;
+            val << std::fixed << std::setprecision(1) << value;
+            std::string str = param + " = " + val.str() + " ";
+            params += str;
         }
-        std::cout << std::endl;
+        params += "\n";
+        ConsoleManager::print(params);
     }
+    
+    // Показываем приглашение для ввода
+    ConsoleManager::clearInputLine(9);
+    ConsoleManager::showPrompt(9);
 }
+
 
 std::string Game::getQualification() const {
     if(totalScore >= 1500) return "expert";
@@ -214,9 +256,11 @@ std::string Game::getQualification() const {
     return "student";
 }
 
+
 bool Game::checkSolution() {
     return true;
 }
+
 
 void Game::updateScore(bool) {
 

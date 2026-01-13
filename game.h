@@ -9,11 +9,11 @@
 
 class Game {
 private:
+    Penguin penguin;
     int currentLevel;
     int totalScore;
     std::atomic<bool> running{true};
     std::vector<std::unique_ptr<Device>> devices;
-    Penguin penguin;
 
     // Поток ввода
     std::thread inputThread;
@@ -26,8 +26,6 @@ private:
     
     // Методы
     void inputLoop();
-    void gotoxy(int x, int y);
-    void clearInputLine();
 
 public:
     Game();
