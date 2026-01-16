@@ -1,3 +1,4 @@
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 cmake_minimum_required(VERSION 3.12)
 
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
@@ -5,11 +6,24 @@ set(PROJECT_VERSION 0.0.${PATCH_VERSION})
 
 project(penguin VERSION ${PROJECT_VERSION})
 
-add_executable(penguin main.cpp game.cpp device.cpp malfunction.cpp penguin.cpp)
+add_executable(penguin)
 
 set_target_properties(penguin PROPERTIES 
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON 
+)
+
+target_sources(penguin PRIVATE
+    src/main.cpp 
+    src/game.cpp 
+    src/malfunction.cpp 
+    src/penguin.cpp 
+    src/devices/fan.cpp 
+    src/devices/pump.cpp
+)
+
+target_include_directories(penguin PUBLIC 
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 install(TARGETS penguin RUNTIME DESTINATION bin)
