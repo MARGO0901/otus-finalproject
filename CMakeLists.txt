@@ -20,6 +20,7 @@ target_sources(penguin PRIVATE
     src/penguin.cpp 
     src/devices/fan.cpp 
     src/devices/pump.cpp
+    src/devices/compressor.cpp
 )
 
 target_include_directories(penguin PUBLIC 

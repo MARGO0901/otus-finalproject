@@ -7,11 +7,12 @@ public:
     Pump();
 
     void update() override;
-    std::vector<Malfunction> checkMalfunctions() override;  
     int applySolution(const Solution& solution) override;
 
-    std::vector<Malfunction> createPumpMalfunctions();
+    std::vector<Malfunction> createMalfunctions() override; 
 
 private:
-    std::vector<Malfunction> malfunctions;
+    Malfunction createOverheat();
+    Malfunction createVibration();
+    Malfunction createNoPressure();
 };
