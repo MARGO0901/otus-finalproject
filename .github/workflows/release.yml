@@ -26,6 +26,7 @@ jobs:
           cd build
           cmake .. -DPATCH_VERSION=${{ github.run_number }}
           cmake --build . --parallel 2
+          cpack -G DEB
       - name: Run tests
         run: |
           cd build
@@ -33,7 +34,7 @@ jobs:
       - name: Create Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -51,6 +52,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/*.deb
+          asset_path: ./build/penguin-0.0.${{ github.run_number }}-Linux.deb
           asset_name: penguin-0.0.${{ github.run_number }}-Linux.deb
           asset_content_type: application/vnd.debian.binary-package
