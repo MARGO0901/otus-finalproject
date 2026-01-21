@@ -31,6 +31,13 @@ target_include_directories(penguin PUBLIC
 
 target_link_libraries(penguin PRIVATE Boost::boost)
 
+# ============ TESTS =============
+option(BUILD_TEST "Build tests" ON)
+
+if(BUILD_TEST)
+    add_subdirectory(tests)
+endif()
+
 install(TARGETS penguin RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)

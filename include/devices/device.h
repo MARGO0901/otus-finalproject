@@ -4,13 +4,13 @@
 
 class Device {
 protected:
-    std::string name;
+    std::string name_;
     enum State { WORKING, BROCKEN, FIXING} state;
     std::map<std::string, double> params;
     std::vector<Malfunction> malfunctions;
 
 public:
-    Device(const std::string & name) : name(name), state(WORKING) {}
+    Device(const std::string & name) : name_(name), state(WORKING) {}
 
     // Создать список возможных неисправностей и их решений
     virtual std::vector<Malfunction> createMalfunctions() = 0;
@@ -32,7 +32,7 @@ public:
         return active;
     }
 
-    std::string getName() const { return name; }
+    std::string getName() const { return name_; }
     State getState() const { return state; }
     const std::map<std::string, double> &getParams() const { return params; }
 
