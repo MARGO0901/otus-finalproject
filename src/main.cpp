@@ -2,7 +2,7 @@
 
 int main() {
 
-    Game game({"Pump"});
+    Game game({"Pump", "Fan", "Compressor"});
 
     game.runLevel(1);
 /*    if(game.getTotalScore() >= 200) {

@@ -1,3 +1,5 @@
+#include <boost/format/format_fwd.hpp>
+#include <boost/move/utility_core.hpp>
 #include <game.h>
 
 #include <iomanip>
@@ -6,6 +8,8 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
+
+#include <boost/format.hpp>
 
 #include <consolemanager.h>
 #include <devices/deviceregistry.h>
@@ -16,11 +20,6 @@ Game::Game(const std::vector<std::string>& deviceNames) : currentLevel(1), total
 
     penguin.say("Привет!");
 
-    //devices.push_back(std::make_unique<Pump>());
-    //devices.push_back(std::make_unique<Fan>());    
-    //devices.push_back(std::make_unique<Compressor>()); 
-    
-    //game.devices.push_back(DeviceRegistry::create("Heater")); // Добавили!
     for (const auto& name : deviceNames) {
         devices.push_back(DeviceRegistry::create(name));
     }
@@ -76,8 +75,8 @@ void Game::inputLoop() {
                 cv.notify_one();
                 line.clear();
 
-                ConsoleManager::clearInputLine(9);
-                ConsoleManager::showPrompt(9);
+                ConsoleManager::clearInputLine(11);
+                ConsoleManager::showPrompt(11);
             }
         }
         else if (ch == 127 || ch == 8) {  // Backspace
@@ -131,7 +130,7 @@ void Game::runLevel(int level) {
         std::string msg = "Задача " + std::to_string(task + 1) + "/" + 
                          std::to_string(tasks) + ". Выбери устройство для починки!";
         penguin.say(msg);
-        ConsoleManager::gotoxy(2, 9);
+        ConsoleManager::gotoxy(2, 11);
 
         // 5. Ждем ввод пользователя
         std::string userInput;
@@ -237,11 +236,12 @@ void Game::showDevicesStatus() {
     ConsoleManager::print("===Devices===\n");
     for (auto &device : devices) {
         std::string params;
-        std::cout << device->getName() << ": ";
+        std::cout << std::left << std::setw(11) << device->getName() << ":\t";
         for(auto& [param, value] : device->getParams()) {
             std::ostringstream val;
             val << std::fixed << std::setprecision(1) << value;
-            std::string str = param + " = " + val.str() + " ";
+            //std::string str = param + " = " + val.str() + "\t";
+            std::string str = (boost::format("%-26s") % (param + " = " + val.str())).str();
             params += str;
         }
         params += "\n";
@@ -249,8 +249,8 @@ void Game::showDevicesStatus() {
     }
     
     // Показываем приглашение для ввода
-    ConsoleManager::clearInputLine(9);
-    ConsoleManager::showPrompt(9);
+    ConsoleManager::clearInputLine(11);
+    ConsoleManager::showPrompt(11);
 }
 
 

@@ -36,7 +36,7 @@ void Penguin::updateFace() {
         emoji = "  ('v')   " + currentMessage;
     }
     ConsoleManager::print(emoji);
-    ConsoleManager::gotoxy(2, 9);
+    ConsoleManager::gotoxy(2, 11);
 }
 
 
