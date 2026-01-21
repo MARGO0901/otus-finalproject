@@ -6,6 +6,8 @@ set(PROJECT_VERSION 0.0.${PATCH_VERSION})
 
 project(penguin VERSION ${PROJECT_VERSION})
 
+find_package(Boost REQUIRED)
+
 add_executable(penguin)
 
 set_target_properties(penguin PROPERTIES 
@@ -26,6 +28,8 @@ target_sources(penguin PRIVATE
 target_include_directories(penguin PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+target_link_libraries(penguin PRIVATE Boost::boost)
 
 install(TARGETS penguin RUNTIME DESTINATION bin)
 
