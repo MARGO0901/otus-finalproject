@@ -1,6 +1,7 @@
+#include <iostream>
+
 #include "malfunction.h"
 #include <devices/pump.h>
-
 #include <devices/deviceregistry.h>
 
 namespace {

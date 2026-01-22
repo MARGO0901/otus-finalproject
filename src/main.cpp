@@ -4,7 +4,9 @@ int main() {
 
     Game game({"Pump", "Fan", "Compressor"});
 
-    game.runLevel(1);
+    game.start();
+
+    //game.runLevel(1);
 /*    if(game.getTotalScore() >= 200) {
         std::cout << "Level 1 completed!" << std::endl;
         
@@ -21,6 +23,13 @@ int main() {
     std::cout << "Game over!" << std::endl;
     std::cout << "Your qualifications: " << game.getQualification() << std::endl;
 */
+
+    // Ждем, пока running не станет false
+    while (true) {
+        // Проверяем состояние каждые 100 мс
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    }
 
     return 0;
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mutex>
+
 #include "device.h"
 
 class Pump : public Device {
@@ -15,4 +17,6 @@ private:
     Malfunction createOverheat();
     Malfunction createVibration();
     Malfunction createNoPressure();
+
+    std::mutex mtx;
 };

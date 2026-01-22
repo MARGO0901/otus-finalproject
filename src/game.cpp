@@ -1,5 +1,7 @@
+#include <atomic>
 #include <boost/format/format_fwd.hpp>
 #include <boost/move/utility_core.hpp>
+#include <chrono>
 #include <game.h>
 
 #include <iomanip>
@@ -18,19 +20,17 @@ static std::mutex outputMutex;
 
 Game::Game(const std::vector<std::string>& deviceNames) : currentLevel(1), totalScore(0) {
 
-    penguin.say("Привет!");
+    //penguin.say("Привет!");
 
     for (const auto& name : deviceNames) {
         devices.push_back(DeviceRegistry::create(name));
     }
-
-    // Поток ввода (НЕБЛОКИРУЮЩИЙ)
-    inputThread = std::thread(&Game::inputLoop, this);
 }
 
 
 Game::~Game() {
-    running = false;
+    stop();
+
     if (inputThread.joinable()) {
         inputThread.join();
     }
@@ -40,6 +40,19 @@ Game::~Game() {
 
 
 void Game::inputLoop() {
+
+    // Ждем сигнала старта
+    {
+        std::unique_lock<std::mutex> lock(startMutex);
+        
+        // Ожидание пока running не станет true;
+        startCV.wait(lock, [this]() { 
+            return running.load(std::memory_order_acquire); 
+        });
+    }
+
+    ConsoleManager::gotoxy(2, 11);
+
     // сохранить настройки терминала    
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt);
@@ -54,7 +67,7 @@ void Game::inputLoop() {
     std::string line;
             
     // считывать символы по одному
-    while (running) {
+    while (this->running.load(std::memory_order_acquire)) {
 
         char ch;
 
@@ -69,14 +82,14 @@ void Game::inputLoop() {
         if (ch == '\n' || ch == '\r') {  // Enter
             if (!line.empty()) {
                 {
-                    std::lock_guard<std::mutex> lock(mtx);
+                    std::lock_guard<std::mutex> lock(inputMtx);
                     inputBuffer = line;
                 }
-                cv.notify_one();
                 line.clear();
 
                 ConsoleManager::clearInputLine(11);
                 ConsoleManager::showPrompt(11);
+                ConsoleManager::gotoxy(2, 11);
             }
         }
         else if (ch == 127 || ch == 8) {  // Backspace
@@ -102,13 +115,102 @@ void Game::inputLoop() {
 
 // Неблокирующее получение команды
 bool Game::getCommand(std::string& cmd) {
-    std::lock_guard<std::mutex> lock(mtx);
+    std::lock_guard<std::mutex> lock(inputMtx);
     if (!inputBuffer.empty()) {
         cmd = inputBuffer;
         inputBuffer.clear();
         return true;
     }
     return false;
+}
+
+
+void Game::start() {
+        
+    inputThread = std::thread(&Game::inputLoop, this);
+    uiThread = std::thread([this]() { uiThreadFunc(); });
+
+    for (std::size_t i = 0; i < devices.size(); i++) {
+        deviceThreads.emplace_back([this, i]() {
+            deviceThread(i);
+        });
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    // Показываем приглашение для ввода
+    ConsoleManager::clearInputLine(11);
+    ConsoleManager::showPrompt(11);
+
+    // ТОЛЬКО ТЕПЕРЬ устанавливаем running и уведомляем
+    {
+        std::lock_guard<std::mutex> lock(startMutex);
+        running.store(true, std::memory_order_release);
+    }
+    startCV.notify_all();
+}
+
+
+void Game::stop() {
+    running = false;
+
+    for (auto& thread : deviceThreads) {
+        if (thread.joinable()) thread.join();
+    }
+    deviceThreads.clear();
+
+    if (uiThread.joinable()) uiThread.join();
+}
+
+
+void Game::deviceThread(std::size_t deviceIndex) {
+    // Ждем сигнала старта
+    {
+        std::unique_lock<std::mutex> lock(startMutex);
+        
+        // Ожидание пока running не станет true;
+        startCV.wait(lock, [this]() { 
+            return running.load(std::memory_order_acquire); 
+        });
+    }
+    
+    auto &device = devices[deviceIndex];
+
+    while(running.load(std::memory_order_acquire)) {
+        device->update();
+        needsRedrawDevice = true;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+}
+
+
+void Game::uiThreadFunc() {
+    // Ждем сигнала старта
+    {
+        std::unique_lock<std::mutex> lock(startMutex);
+        
+        // Ожидание пока running не станет true;
+        startCV.wait(lock, [this]() { 
+            return running.load(std::memory_order_acquire); 
+        });
+    }
+
+    auto lastRedraw = std::chrono::steady_clock::now();
+
+    while(running.load(std::memory_order_acquire)) {
+        auto now = std::chrono::steady_clock::now();
+        bool timeToRedraw = (now - lastRedraw) > std::chrono::milliseconds(100);
+
+        if (needsRedrawDevice && timeToRedraw) {
+            std::lock_guard<std::mutex> lock(deviceDrawMtx);
+            showDevicesStatus();
+            lastRedraw = now;
+            needsRedrawDevice = false;
+        }
+
+        // Не грузить CPU
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
 }
 
 
@@ -226,6 +328,9 @@ void Game::generateProblems(int count) {
 
 
 void Game::showDevicesStatus() {    
+    // Сохраняем позицию курсора
+    ConsoleManager::savePosition();
+
     // Очищаем область под пингвином (строки 5-9)
     for (int i = 5; i <= 9; i++) {
         ConsoleManager::clearInputLine(i);
@@ -240,7 +345,6 @@ void Game::showDevicesStatus() {
         for(auto& [param, value] : device->getParams()) {
             std::ostringstream val;
             val << std::fixed << std::setprecision(1) << value;
-            //std::string str = param + " = " + val.str() + "\t";
             std::string str = (boost::format("%-26s") % (param + " = " + val.str())).str();
             params += str;
         }
@@ -248,9 +352,8 @@ void Game::showDevicesStatus() {
         ConsoleManager::print(params);
     }
     
-    // Показываем приглашение для ввода
-    ConsoleManager::clearInputLine(11);
-    ConsoleManager::showPrompt(11);
+    // Восстанавливаем позицию курсора
+    ConsoleManager::restorePosition();
 }
 
 

@@ -46,6 +46,18 @@ public:
         std::cout << "\033[" << row + 1 << ";1H> \033[?25h" << std::flush;
         std::cout << "\033[" << (row + 1) << ";" << 2 << "H" << std::flush;
     }
+
+    static void savePosition() {
+        std::lock_guard<std::mutex> lock(consoleMutex_);
+        std::cout << "\033[s";
+        std::cout.flush();
+    }
+
+    static void restorePosition() {
+        std::lock_guard<std::mutex> lock(consoleMutex_);
+        std::cout << "\033[u";
+        std::cout.flush();
+    }
 };
 
 inline std::mutex ConsoleManager::consoleMutex_;
