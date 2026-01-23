@@ -8,6 +8,7 @@
 #include <ios>
 #include <mutex>
 #include <termios.h>
+#include <thread>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -19,8 +20,6 @@
 static std::mutex outputMutex;
 
 Game::Game(const std::vector<std::string>& deviceNames) : currentLevel(1), totalScore(0) {
-
-    //penguin.say("Привет!");
 
     for (const auto& name : deviceNames) {
         devices.push_back(DeviceRegistry::create(name));
@@ -39,19 +38,44 @@ Game::~Game() {
 }
 
 
+void Game::start() {
+    //showMainMenu();
+    running.store(true, std::memory_order_release);
+        
+    inputThread = std::thread(&Game::inputLoop, this);
+    mainThread = std::thread([this] () { mainGameLoop(); });
+    deviceThread = std::thread([this]() { deviceUpdateLoop(); });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    startCV.notify_all();
+
+    // Приглашение для ввода
+    ConsoleManager::clearInputLine(11);
+    ConsoleManager::showPrompt(11);   
+}
+
+
+void Game::stop() {
+    running.store(false, std::memory_order_release);
+    startCV.notify_all();
+
+    if (inputThread.joinable()) inputThread.join();
+    if (deviceThread.joinable()) deviceThread.join();
+    if (mainThread.joinable()) mainThread.join();
+}
+
+
 void Game::inputLoop() {
 
     // Ждем сигнала старта
     {
         std::unique_lock<std::mutex> lock(startMutex);
-        
-        // Ожидание пока running не станет true;
+
         startCV.wait(lock, [this]() { 
             return running.load(std::memory_order_acquire); 
         });
     }
-
-    ConsoleManager::gotoxy(2, 11);
 
     // сохранить настройки терминала    
     struct termios oldt, newt;
@@ -82,7 +106,7 @@ void Game::inputLoop() {
         if (ch == '\n' || ch == '\r') {  // Enter
             if (!line.empty()) {
                 {
-                    std::lock_guard<std::mutex> lock(inputMtx);
+                    std::lock_guard<std::mutex> lock(inputMutex);
                     inputBuffer = line;
                 }
                 line.clear();
@@ -107,15 +131,125 @@ void Game::inputLoop() {
     
     // Восстанавливаем настройки
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-
     // Восстанавливаем видимость курсора
     ConsoleManager::showCursor();
 }
 
 
+void Game::mainGameLoop() {
+    // Ожидание сигнала старта
+    {
+        std::unique_lock<std::mutex> lock(startMutex);
+        startCV.wait(lock, [this]() { 
+            return running.load(std::memory_order_acquire); 
+        });
+    }
+    
+    while(running.load(std::memory_order_acquire)) {
+        std::string cmd;
+        if(getCommand(cmd)) {
+            processCommand(cmd);
+        }
+
+        if(needsRedrawDevice) {
+            showDevicesStatus();
+            needsRedrawDevice = 0;
+        }
+
+        if(currentState == State::PLAYING) {
+            static bool levelInProgress = false;
+
+            if(!levelInProgress) {
+                levelInProgress = true;
+                runLevelInLoop(currentLevel);
+                levelInProgress = false;
+
+                currentState = State::MENU;
+                //showMainMenu();
+            }
+        }
+            
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+}
+
+
+void Game::deviceUpdateLoop() {
+    // Ждем запуска
+    {
+        std::unique_lock<std::mutex> lock(startMutex);
+        startCV.wait(lock, [this]() { return running.load(); });
+    }
+
+    while (running.load()) {
+        {
+            std::lock_guard<std::mutex> lock(deviceMutex);
+            for (auto& device : devices) {
+                device->update();
+            }
+        }
+
+        needsRedrawDevice = true;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+}
+
+
+void Game::processCommand(std::string &command) {
+    switch (currentState) {
+        case State::MENU:
+            handleMenuCommand(command);
+            break;
+        case State::PLAYING:
+            //handleGameCommand(command);
+            break;
+        case State::GAME_OVER:
+            // Команды после игры
+            if (command == "menu") {
+                currentState = State::MENU;
+                //showMainMenu();
+            }
+            break;
+        // ... другие состояния
+    }
+}
+
+
+void Game::handleMenuCommand(const std::string& command) {
+    if (command == "start" || command == "1") {
+        currentState = State::PLAYING;       
+    }
+    else if (command == "exit" || command == "quit") {
+        running.store(false);
+    }
+    else if (command == "help") {
+        penguin.say("Доступные команды: start, exit, help");
+    }
+    else {
+        penguin.say("Неизвестная команда. Введи 'start' для начала игры");
+    }
+}
+
+
+void Game::handleGameCommand(const std::string& command) {
+    if (command == "menu") {
+        currentState = State::MENU;
+        //showMainMenu();
+    }
+    else if (command == "exit") {
+        running.store(false);
+    }
+    else {
+        // Обработка игрового ввода
+        std::lock_guard<std::mutex> lock(inputMutex);
+        inputBuffer = command;
+    }
+}
+
+
 // Неблокирующее получение команды
 bool Game::getCommand(std::string& cmd) {
-    std::lock_guard<std::mutex> lock(inputMtx);
+    std::lock_guard<std::mutex> lock(inputMutex);
     if (!inputBuffer.empty()) {
         cmd = inputBuffer;
         inputBuffer.clear();
@@ -125,142 +259,91 @@ bool Game::getCommand(std::string& cmd) {
 }
 
 
-void Game::start() {
-        
-    inputThread = std::thread(&Game::inputLoop, this);
-    uiThread = std::thread([this]() { uiThreadFunc(); });
-
-    for (std::size_t i = 0; i < devices.size(); i++) {
-        deviceThreads.emplace_back([this, i]() {
-            deviceThread(i);
-        });
-    }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-    // Показываем приглашение для ввода
-    ConsoleManager::clearInputLine(11);
-    ConsoleManager::showPrompt(11);
-
-    // ТОЛЬКО ТЕПЕРЬ устанавливаем running и уведомляем
-    {
-        std::lock_guard<std::mutex> lock(startMutex);
-        running.store(true, std::memory_order_release);
-    }
-    startCV.notify_all();
-}
-
-
-void Game::stop() {
-    running = false;
-
-    for (auto& thread : deviceThreads) {
-        if (thread.joinable()) thread.join();
-    }
-    deviceThreads.clear();
-
-    if (uiThread.joinable()) uiThread.join();
-}
-
-
-void Game::deviceThread(std::size_t deviceIndex) {
-    // Ждем сигнала старта
-    {
-        std::unique_lock<std::mutex> lock(startMutex);
-        
-        // Ожидание пока running не станет true;
-        startCV.wait(lock, [this]() { 
-            return running.load(std::memory_order_acquire); 
-        });
+/*
+// === ГЛАВНОЕ МЕНЮ ===
+void Game::showMainMenu() {
+    ConsoleManager::clearScreen();
+    
+    // Рисуем пингвина
+    penguin.draw();
+    
+    // Меню
+    ConsoleManager::gotoxy(0, 6);
+    std::cout << "========== ГЛАВНОЕ МЕНЮ ==========\n";
+    std::cout << "1. Начать игру (start)\n";
+    std::cout << "2. Помощь (help)\n";
+    std::cout << "3. Выход (exit)\n";
+    std::cout << "==================================\n";
+    
+    if (totalScore > 0) {
+        std::cout << "\nТекущий счет: " << totalScore << "\n";
     }
     
-    auto &device = devices[deviceIndex];
-
-    while(running.load(std::memory_order_acquire)) {
-        device->update();
-        needsRedrawDevice = true;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
-}
+    // Приглашение для ввода
+    ConsoleManager::clearInputLine(11);
+    ConsoleManager::showPrompt(11);
+    ConsoleManager::gotoxy(2, 11);
+}*/
 
 
-void Game::uiThreadFunc() {
-    // Ждем сигнала старта
-    {
-        std::unique_lock<std::mutex> lock(startMutex);
-        
-        // Ожидание пока running не станет true;
-        startCV.wait(lock, [this]() { 
-            return running.load(std::memory_order_acquire); 
-        });
-    }
-
-    auto lastRedraw = std::chrono::steady_clock::now();
-
-    while(running.load(std::memory_order_acquire)) {
-        auto now = std::chrono::steady_clock::now();
-        bool timeToRedraw = (now - lastRedraw) > std::chrono::milliseconds(100);
-
-        if (needsRedrawDevice && timeToRedraw) {
-            std::lock_guard<std::mutex> lock(deviceDrawMtx);
-            showDevicesStatus();
-            lastRedraw = now;
-            needsRedrawDevice = false;
-        }
-
-        // Не грузить CPU
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
-}
-
-
-void Game::runLevel(int level) {
-    currentLevel = level; 
-
-    penguin.say("Начинаем уровень " + std::to_string(currentLevel));
-
+void Game::runLevelInLoop(int level) {
     int tasks = (level == 1) ? 3 : (level == 2) ? 6 : 9;
     int problemsAtOnce = level;
 
-    for (int task = 0; task < tasks; ++task) {
+    for (int task = 0; task < tasks && currentState == State::PLAYING && running.load(); task++) {
+
         // Генерируем проблемы
         generateProblems(problemsAtOnce);
-
-        //показать состояние приборов
-        showDevicesStatus();
 
         std::string msg = "Задача " + std::to_string(task + 1) + "/" + 
                          std::to_string(tasks) + ". Выбери устройство для починки!";
         penguin.say(msg);
-        ConsoleManager::gotoxy(2, 11);
 
-        // 5. Ждем ввод пользователя
-        std::string userInput;
+        //ConsoleManager::gotoxy(2, 11);
+
+        // Ожидание ввода пользователя
         bool validInput = false;
         
-        while (!validInput && running) {
+        while (!validInput && running.load() && currentState == State::PLAYING) {
             // Ждем команду от пользователя
-            if (getCommand(userInput)) {
-                processUserInput(userInput);
-                
-                // Проверяем валидность ввода
-                if (userInput == "1" || userInput == "2" || userInput == "3" || 
-                    userInput == "4" || userInput == "5") {
-                    int choice = std::stoi(userInput) - 1;
-                    if (choice >= 0 && choice < static_cast<int>(devices.size())) {
-                        validInput = true;
+            std::string userInput;
+            if (getCommand(userInput)) {                
+                // Проверка валидности ввода
+                if (userInput == "1" || userInput == "2" || userInput == "3" || userInput == "4" || userInput == "5") {
+                    // Обработка выбора
+                    bool correct = checkSolution();
+                    updateScore(correct);
+                    
+                    if (correct) {
+                        penguin.setMood("happy");
+                        penguin.say("Правильно! +10 очков!");
+                    } else {
+                        penguin.setMood("sad");
+                        penguin.say("Ой... Неправильно.");
                     }
-                } else {
+                    
+                    userInput = true;
+                }
+                else if (userInput == "menu") {
+                    currentState = State::MENU;
+                    return;
+                }
+                else {
                     penguin.say("Введи номер 1-" + std::to_string(devices.size()));
                 }
-                
-                validInput = true; // временно
+            }
+
+            if (needsRedrawDevice) {
+                showDevicesStatus();
+                needsRedrawDevice = false;
             }
             
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
 
-        if(!running) break;
+        if (currentState != State::PLAYING || !running.load()) {
+            break;
+        }
         
         //Проверяем решение
         bool correct = checkSolution(/* параметры */);
@@ -282,10 +365,16 @@ void Game::runLevel(int level) {
     }
 
     // Завершение уровня
-    if (running) {
+    if (currentState == State::PLAYING && running.load()) {
         penguin.setMood("happy");
         penguin.say("Уровень " + std::to_string(level) + " завершен! Счет: " + 
                     std::to_string(totalScore));
+
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        
+        // Возвращаемся в меню
+        currentState = State::MENU;
+        //showMainMenu();
     }
 }
 

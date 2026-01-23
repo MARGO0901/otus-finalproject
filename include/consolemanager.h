@@ -58,6 +58,13 @@ public:
         std::cout << "\033[u";
         std::cout.flush();
     }
+
+    static void printDebug(const std::string &str) {
+        savePosition();
+        gotoxy(0, 12);
+        print(str);
+        restorePosition();
+    }
 };
 
 inline std::mutex ConsoleManager::consoleMutex_;

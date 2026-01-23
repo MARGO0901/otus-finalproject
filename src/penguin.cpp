@@ -1,7 +1,7 @@
 #include <penguin.h>
 #include <consolemanager.h>
 
-Penguin::Penguin() : mood("normal"), currentMessage("Привет!") {
+Penguin::Penguin() : mood("normal"), currentMessage("Привет! Введи любые символы, чтобы начать") {
     ConsoleManager::clearScreen();
     drawPenguin();
 }

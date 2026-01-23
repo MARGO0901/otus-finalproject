@@ -12,43 +12,40 @@
 
 
 class Game {
+public:
+    enum class State {
+        MENU, 
+        PLAYING, 
+        GAME_OVER, 
+        EXIT
+    };
+
 private:
-    Penguin penguin;
-    int currentLevel;
-    int totalScore;
-    std::vector<std::unique_ptr<Device>> devices;
-     std::atomic<bool> running{false};
+    std::thread inputThread;    // ввод пользователя
+    std::thread mainThread;     // основная логика ( UI + уровень )
+    std::thread deviceThread;   // обновление состояния приборов
 
-    std::vector<std::thread> deviceThreads;
-    std::thread uiThread;
-    std::thread inputThread; 
-   
+    // состояние игры
+    State currentState{State::MENU};
+    std::atomic<bool> running{false};
+
+    // синхронизация
     std::mutex startMutex;
-    std::mutex deviceDrawMtx;
-    std::mutex inputMtx;
-
     std::condition_variable startCV;
-    std::atomic<bool> needsRedrawDevice{false};  // Флаг необходимости перерисовки приборов
+
+    // ввод
+    std::mutex inputMutex;
     std::string inputBuffer;
 
-    // Проблемы
-    std::vector<std::pair<Device*, Malfunction>> currentProblems;
-    
-    // Методы
-    void inputLoop();
-    void deviceThread(std::size_t deviceIndex);
-    void uiThreadFunc();
-    void showDevicesStatus();
-    bool getCommand(std::string& cmd);
+    // устройства
+    std::vector<std::unique_ptr<Device>> devices;
+    std::mutex deviceMutex;
+    bool needsRedrawDevice{false};     // Флаг необходимости перерисовки приборов
 
-    void processUserInput(const std::string& input);
-    void generateProblems(int count);
-
-    bool checkSolution();
-    void updateScore(bool correct);
-    std::string getQualification() const;
-
-    int getTotalScore() const { return totalScore; }
+    // игровые данные
+    int currentLevel;
+    Penguin penguin;
+    int totalScore;
 
 public:
     Game(const std::vector<std::string>& deviceNames);
@@ -56,6 +53,33 @@ public:
 
     void start();
     void stop();
+    bool isRunning() const { return running.load(); }
 
-    void runLevel(int level);
+private:
+    // потоки
+    void inputLoop();
+    void mainGameLoop();
+    void deviceUpdateLoop();
+
+    // обработка команд
+    void processCommand(std::string &cmd);
+    void handleMenuCommand(const std::string& command);
+    void handleGameCommand(const std::string& command);
+
+    // игровая логика
+    //void showMainMenu();
+    void runLevelInLoop(int level);
+    void generateProblems(int count);
+    void showDevicesStatus();
+    bool getCommand(std::string& cmd);
+    void processUserInput(const std::string& input);
+    bool checkSolution();
+    void updateScore(bool correct);
+       
+    // Проблемы
+    std::vector<std::pair<Device*, Malfunction>> currentProblems;
+    
+    // результаты    
+    std::string getQualification() const;
+    int getTotalScore() const { return totalScore; }   
 };

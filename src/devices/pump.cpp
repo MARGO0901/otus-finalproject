@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "malfunction.h"
 #include <devices/pump.h>
 #include <devices/deviceregistry.h>
@@ -37,6 +35,7 @@ int Pump::applySolution(const Solution& solution) {
     }
     return solution.score;
 }
+
 
 std::vector<Malfunction> Pump::createMalfunctions() {
     std::vector<Malfunction> malfunctions;
