@@ -1,6 +1,9 @@
 #include "malfunction.h"
 #include <devices/pump.h>
 #include <devices/deviceregistry.h>
+#include <devices/units.h>
+
+using namespace units;
 
 namespace {
     bool _ = []() {
@@ -10,20 +13,19 @@ namespace {
 }
 
 Pump::Pump() : Device("Pump") {
-    params = { 
-        {"Press", 5.0},
-        {"Temperature", 65.0},
-        {"Current", 32.0},
-        {"Vibro", 2.0}
-    };
+    params.emplace(DeviceParameter("Press", {0.f,10.f}, {4, 6}), 5.0_bar);
+    params.emplace(DeviceParameter("Temperature", {20.f, 120.f}, {60, 80}), 65.0_celsies);
+    params.emplace(DeviceParameter("Current", {10.f, 50.f}, {30.f, 35.f}), 32.5_amper);
+    params.emplace(DeviceParameter("Vibro", {0.f, 15.f}, {0.f, 3.f}), 1.5_mms);
 
     malfunctions = createMalfunctions();
 }
 
 
 void Pump::update() {
-    params["Temperature"] += (rand() % 3 - 1) * 0.5;
-    params["Press"] += (rand() % 5 - 2) * 0.1;
+    for(auto& [param, value] : params) {
+        optChangeParam(param, value);
+    }
 }
 
 
@@ -31,7 +33,7 @@ int Pump::applySolution(const Solution& solution) {
     // Здесь логика применения решения
     // Например, если решение "включить охлаждение"
     if(solution.description.find("cooling") != std::string::npos) {
-        params["Temperature"] -= 10.0;
+        //params["Temperature"] -= 10.0;
     }
     return solution.score;
 }

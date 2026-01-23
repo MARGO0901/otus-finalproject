@@ -1,5 +1,9 @@
+#include "devices/deviceparameter.h"
 #include <devices/deviceregistry.h>
 #include <devices/compressor.h>
+#include <devices/units.h>
+
+using namespace units;
 
 namespace {
     bool _ = []() {
@@ -9,12 +13,11 @@ namespace {
 }
 
 Compressor::Compressor() : Device("Compressor") {
-    params = {
-        {"Press", 7.0},
-        {"Oil Temperature", 70.0},
-        {"Oil Level", 85.0},
-        {"Start Counter", 5.0}
-    };
+    params.emplace(DeviceParameter("Press", {0.f, 15.f}, {6, 9}), 7._bar);
+    params.emplace(DeviceParameter("Oil Temperature", {20.f, 100.f}, {60.f, 80.f}), 70._celsies);
+    params.emplace(DeviceParameter("Oil Level", { 0.f, 100.f}, {60.f, 90.f}), 85._percent);
+    params.emplace(DeviceParameter("On/Off Counter", {0.f, 100.f}, {0.f, 10.f}), 5._times);
+
     malfunctions = createMalfunctions();
 }
 

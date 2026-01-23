@@ -1,32 +1,32 @@
 <mxfile host="65bd71144e">
     <diagram id="ZN6GzPPyWvrl046P_Pg9" name="Page-1">
-        <mxGraphModel dx="1739" dy="1643" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1460" dy="1523" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
                 <mxCell id="2" value="Game" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="310" y="180" width="300" height="190" as="geometry"/>
+                    <mxGeometry x="310" y="-200" width="300" height="580" as="geometry"/>
                 </mxCell>
-                <mxCell id="3" value="- currentLevel: int&lt;div&gt;- totalScore: int&lt;/div&gt;&lt;div&gt;- devices:&amp;nbsp;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;vector&amp;lt;unique_ptr&amp;lt;Device&amp;gt;&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;- penguin: Penguin&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;- currentProblems: vector&amp;lt;pair&amp;lt;Device*, Malfuncton&amp;gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="2" vertex="1">
-                    <mxGeometry y="26" width="300" height="84" as="geometry"/>
+                <mxCell id="3" value="&lt;div&gt;- inputThread: thread&lt;/div&gt;&lt;div&gt;- mainThread: thread&lt;/div&gt;&lt;div&gt;- deviceThread: thread&lt;/div&gt;&lt;div&gt;- state: State&lt;/div&gt;&lt;div&gt;- running: atomic&amp;lt;bool&amp;gt;&lt;/div&gt;&lt;div&gt;- startMutex: mutex&lt;/div&gt;&lt;div&gt;- startCV: condition_variable;&lt;/div&gt;&lt;div&gt;- inputMutex: mutex&lt;/div&gt;&lt;div&gt;- inputBuffer: string&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;- devices:&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;vector&amp;lt;unique_ptr&amp;lt;Device&amp;gt;&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;- deviceMutex: mutex&lt;/span&gt;&lt;/div&gt;&lt;div&gt;- needsRedrawDevice: bool&lt;/div&gt;- currentLevel: int&lt;div&gt;- totalScore: int&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;- penguin: Penguin&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;- currentProblems: vector&amp;lt;pair&amp;lt;Device*, Malfuncton&amp;gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="2" vertex="1">
+                    <mxGeometry y="26" width="300" height="244" as="geometry"/>
                 </mxCell>
                 <mxCell id="4" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="2" vertex="1">
-                    <mxGeometry y="110" width="300" height="8" as="geometry"/>
+                    <mxGeometry y="270" width="300" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="5" value="+ runLevel(): void&lt;div&gt;+ generateProblems(int): void&lt;/div&gt;&lt;div&gt;+ showDeviceStatus(): void&lt;/div&gt;&lt;div&gt;+ getTotalScore(): int&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="2" vertex="1">
-                    <mxGeometry y="118" width="300" height="72" as="geometry"/>
+                <mxCell id="5" value="&lt;div&gt;+ Game(const vector&amp;lt;string&amp;gt;&amp;amp;)&lt;/div&gt;&lt;div&gt;+ ~Game();&lt;/div&gt;&lt;div&gt;+ start(): void&lt;/div&gt;&lt;div&gt;+ stop(): void&lt;/div&gt;&lt;div&gt;- inputLoop();&lt;/div&gt;&lt;div&gt;- mainGameLoop();&lt;/div&gt;&lt;div&gt;- deviceUpdateLoop();&lt;/div&gt;&lt;div&gt;- proccessCommand(std::string&amp;amp;): void&lt;/div&gt;&lt;div&gt;- handleMenuCommand(consr string&amp;amp;): void&lt;/div&gt;&lt;div&gt;- handleGameCommand(const string&amp;amp;): void&lt;/div&gt;&lt;div&gt;- showMenu(): void&lt;/div&gt;- runLevelInLoop(int): void&lt;div&gt;- generateProblems(int): void&lt;/div&gt;&lt;div&gt;- showDeviceStatus(): void&lt;/div&gt;&lt;div&gt;- getCommand(string&amp;amp;): void&lt;/div&gt;&lt;div&gt;- processUserInput(const string&amp;amp;) void&lt;/div&gt;&lt;div&gt;- checkSolution(): bool&lt;/div&gt;&lt;div&gt;- updateScore(bool): void&lt;/div&gt;&lt;div&gt;- getQualification(): string&lt;/div&gt;&lt;div&gt;- getTotalScore(): int&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="2" vertex="1">
+                    <mxGeometry y="278" width="300" height="302" as="geometry"/>
                 </mxCell>
                 <mxCell id="6" value="Device" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="90" y="450" width="240" height="210" as="geometry"/>
+                    <mxGeometry x="90" y="440" width="240" height="230" as="geometry"/>
                 </mxCell>
-                <mxCell id="7" value="# name: string&lt;div&gt;# state: State&lt;/div&gt;&lt;div&gt;# params: map&amp;lt;string, double&amp;gt;&lt;/div&gt;&lt;div&gt;# malfunctions: vector&amp;lt;Malfunction&amp;gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="6" vertex="1">
-                    <mxGeometry y="26" width="240" height="64" as="geometry"/>
+                <mxCell id="7" value="# name: string&lt;div&gt;# state: State&lt;/div&gt;&lt;div&gt;# params: map&amp;lt;string, double&amp;gt;&lt;/div&gt;&lt;div&gt;# malfunctions: vector&amp;lt;Malfunction&amp;gt;&lt;/div&gt;&lt;div&gt;# norma: pair&amp;lt;double, double&amp;gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="6" vertex="1">
+                    <mxGeometry y="26" width="240" height="84" as="geometry"/>
                 </mxCell>
                 <mxCell id="8" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="6" vertex="1">
-                    <mxGeometry y="90" width="240" height="8" as="geometry"/>
+                    <mxGeometry y="110" width="240" height="8" as="geometry"/>
                 </mxCell>
                 <mxCell id="9" value="+ update(): void&lt;div&gt;+ checkMalfunction(): vector&amp;lt;Malfunction&amp;gt;&lt;/div&gt;&lt;div&gt;+ applySolution(Solution&amp;amp;): int&lt;/div&gt;&lt;div&gt;+ getName(): string&lt;/div&gt;&lt;div&gt;+ getState(): State&lt;/div&gt;&lt;div&gt;+ getParams(): map&amp;lt;string, double&amp;gt;&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ setParam(string&amp;amp;, double&amp;amp;)&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="6" vertex="1">
-                    <mxGeometry y="98" width="240" height="112" as="geometry"/>
+                    <mxGeometry y="118" width="240" height="112" as="geometry"/>
                 </mxCell>
                 <mxCell id="13" value="" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;" parent="1" source="6" target="2" edge="1">
                     <mxGeometry width="160" relative="1" as="geometry">
@@ -204,31 +204,41 @@
                         <Array as="points"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="88" value="ConsoleManager" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="690" y="-10" width="160" height="160" as="geometry"/>
+                <mxCell id="88" value="ConsoleManager" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="690" y="10" width="160" height="160" as="geometry"/>
                 </mxCell>
-                <mxCell id="89" value="- consoleMutex_: mitex" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="88">
+                <mxCell id="89" value="- consoleMutex_: mitex" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="88" vertex="1">
                     <mxGeometry y="26" width="160" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="90" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="88">
+                <mxCell id="90" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="88" vertex="1">
                     <mxGeometry y="52" width="160" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="91" value="+ gotoxy(int, int): void&lt;div&gt;+ print(const T): void&lt;/div&gt;&lt;div&gt;+ hideCursor(): void&lt;/div&gt;&lt;div&gt;+ showCursor(): void&lt;/div&gt;&lt;div&gt;+ clearInputLine(int): void&lt;/div&gt;&lt;div&gt;+ showPromt(int): void&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="88">
+                <mxCell id="91" value="+ gotoxy(int, int): void&lt;div&gt;+ print(const T): void&lt;/div&gt;&lt;div&gt;+ hideCursor(): void&lt;/div&gt;&lt;div&gt;+ showCursor(): void&lt;/div&gt;&lt;div&gt;+ clearInputLine(int): void&lt;/div&gt;&lt;div&gt;+ showPromt(int): void&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="88" vertex="1">
                     <mxGeometry y="60" width="160" height="100" as="geometry"/>
                 </mxCell>
-                <mxCell id="92" value="" style="endArrow=open;endSize=12;dashed=1;html=1;" edge="1" parent="1" source="2" target="88">
+                <mxCell id="92" value="" style="endArrow=open;endSize=12;dashed=1;html=1;" parent="1" source="2" target="88" edge="1">
                     <mxGeometry width="160" relative="1" as="geometry">
                         <mxPoint x="440" y="80" as="sourcePoint"/>
                         <mxPoint x="600" y="80" as="targetPoint"/>
-                        <Array as="points">
-                            <mxPoint x="460" y="70"/>
-                        </Array>
+                        <Array as="points"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="93" value="" style="endArrow=open;endSize=12;dashed=1;html=1;" edge="1" parent="1" source="44" target="88">
+                <mxCell id="93" value="" style="endArrow=open;endSize=12;dashed=1;html=1;" parent="1" source="44" target="88" edge="1">
                     <mxGeometry width="160" relative="1" as="geometry">
                         <mxPoint x="540" y="200" as="sourcePoint"/>
                         <mxPoint x="700" y="200" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="94" value="State" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="110" y="40" width="100" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="95" value="MENU&lt;div&gt;PLAYING&lt;/div&gt;&lt;div&gt;GAME_OVER&lt;/div&gt;&lt;div&gt;EXIT&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="94">
+                    <mxGeometry y="26" width="100" height="74" as="geometry"/>
+                </mxCell>
+                <mxCell id="99" value="" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;" edge="1" parent="1" source="94" target="2">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="160" y="260" as="sourcePoint"/>
+                        <mxPoint x="320" y="260" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
             </root>

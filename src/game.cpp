@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <atomic>
 #include <boost/format/format_fwd.hpp>
 #include <boost/move/utility_core.hpp>
@@ -184,9 +185,9 @@ void Game::deviceUpdateLoop() {
     while (running.load()) {
         {
             std::lock_guard<std::mutex> lock(deviceMutex);
-            for (auto& device : devices) {
+            std::for_each(devices.begin(), devices.end(),[] (auto& device) {
                 device->update();
-            }
+            });
         }
 
         needsRedrawDevice = true;
@@ -434,7 +435,7 @@ void Game::showDevicesStatus() {
         for(auto& [param, value] : device->getParams()) {
             std::ostringstream val;
             val << std::fixed << std::setprecision(1) << value;
-            std::string str = (boost::format("%-26s") % (param + " = " + val.str())).str();
+            std::string str = (boost::format("%-26s") % (param.name_ + " = " + val.str())).str();
             params += str;
         }
         params += "\n";

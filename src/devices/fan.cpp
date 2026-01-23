@@ -1,5 +1,9 @@
+#include "devices/device.h"
 #include <devices/deviceregistry.h>
 #include <devices/fan.h>
+#include <devices/units.h>
+
+using namespace units;
 
 namespace {
     bool _ = []() {
@@ -9,18 +13,18 @@ namespace {
 }
 
 Fan::Fan() : Device("Fan") {
-    params = {
-        {"Rpm", 1350.0},
-        {"Current", 10.0},
-        {"Temperature", 65.0}
-    };
+    params.emplace(DeviceParameter("Rpm", {0, 2000}, {1200, 1500}), 1350._rpm);
+    params.emplace(DeviceParameter("Current", {5, 20}, { 8, 12}), 10._amper);
+    params.emplace(DeviceParameter("Temperature", {20, 120}, {40, 70}), 65._celsies);
+
     malfunctions = createMalfunctions();
 }
 
 
 void Fan::update() {
-    //arams[""] += (rand() % 3 - 1) * 0.5;
-    //params["Press"] += (rand() % 5 - 2) * 0.1;
+    for(auto& [param, value] : params) {
+        optChangeParam(param, value);
+    }
 }
 
 
