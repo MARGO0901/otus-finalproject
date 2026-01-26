@@ -12,19 +12,14 @@ namespace {
     }();
 }
 
+
 Compressor::Compressor() : Device("Compressor") {
     params.emplace(DeviceParameter("Press", {0.f, 15.f}, {6, 9}), 7._bar);
     params.emplace(DeviceParameter("Oil Temperature", {20.f, 100.f}, {60.f, 80.f}), 70._celsies);
     params.emplace(DeviceParameter("Oil Level", { 0.f, 100.f}, {60.f, 90.f}), 85._percent);
-    params.emplace(DeviceParameter("On/Off Counter", {0.f, 100.f}, {0.f, 10.f}), 5._times);
+    params.emplace(DeviceParameter("On/Off Counter", {0, 100}, {0, 10}), 5_times);
 
     malfunctions = createMalfunctions();
-}
-
-
-void Compressor::update() {
-    //arams[""] += (rand() % 3 - 1) * 0.5;
-    //params["Press"] += (rand() % 5 - 2) * 0.1;
 }
 
 

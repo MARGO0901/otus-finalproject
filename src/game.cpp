@@ -1,22 +1,12 @@
-#include <algorithm>
-#include <atomic>
-#include <boost/format/format_fwd.hpp>
-#include <boost/move/utility_core.hpp>
-#include <chrono>
 #include <game.h>
 
-#include <iomanip>
-#include <ios>
-#include <mutex>
 #include <termios.h>
-#include <thread>
-#include <unistd.h>
-#include <fcntl.h>
 
 #include <boost/format.hpp>
 
 #include <consolemanager.h>
 #include <devices/deviceregistry.h>
+#include <utils.h>
 
 static std::mutex outputMutex;
 
@@ -300,8 +290,6 @@ void Game::runLevelInLoop(int level) {
                          std::to_string(tasks) + ". Выбери устройство для починки!";
         penguin.say(msg);
 
-        //ConsoleManager::gotoxy(2, 11);
-
         // Ожидание ввода пользователя
         bool validInput = false;
         
@@ -418,10 +406,10 @@ void Game::generateProblems(int count) {
 
 
 void Game::showDevicesStatus() {    
-    // Сохраняем позицию курсора
+    // Сохранение позиции курсора
     ConsoleManager::savePosition();
 
-    // Очищаем область под пингвином (строки 5-9)
+    // Очистка области под пингвином (строки 5-9)
     for (int i = 5; i <= 9; i++) {
         ConsoleManager::clearInputLine(i);
     }
@@ -433,16 +421,21 @@ void Game::showDevicesStatus() {
         std::string params;
         std::cout << std::left << std::setw(11) << device->getName() << ":\t";
         for(auto& [param, value] : device->getParams()) {
-            std::ostringstream val;
-            val << std::fixed << std::setprecision(1) << value;
-            std::string str = (boost::format("%-26s") % (param.name_ + " = " + val.str())).str();
+            std::string val_str = variantToString(value);
+            // Создание строки
+            std::string param_str =
+                (boost::format("%s(%.0f..%.0f) = %s") % param.name_ %
+                param.optRange_.first % param.optRange_.second % val_str)
+                    .str();
+            // Форматирование ширины
+            std::string str = (boost::format("%-32s") % param_str).str();
             params += str;
         }
         params += "\n";
         ConsoleManager::print(params);
     }
     
-    // Восстанавливаем позицию курсора
+    // Восстанавление позиции курсора
     ConsoleManager::restorePosition();
 }
 

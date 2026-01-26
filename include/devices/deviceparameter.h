@@ -5,9 +5,9 @@
 #include <utility>
 
 struct DeviceParameter {
-    explicit DeviceParameter(std::string name, std::pair<double, double> opt, std::pair<double, double> range)
+    explicit DeviceParameter(std::string name, std::pair<double, double> range, std::pair<double, double> opt)
         : name_(std::move(name))
-        , range_(range)
+        , range_(std::move(range))
         , optRange_(std::move(opt)) {}
 
     bool operator==(const DeviceParameter& other) const {

@@ -12,19 +12,13 @@ namespace {
     }();
 }
 
+
 Fan::Fan() : Device("Fan") {
     params.emplace(DeviceParameter("Rpm", {0, 2000}, {1200, 1500}), 1350._rpm);
     params.emplace(DeviceParameter("Current", {5, 20}, { 8, 12}), 10._amper);
     params.emplace(DeviceParameter("Temperature", {20, 120}, {40, 70}), 65._celsies);
 
     malfunctions = createMalfunctions();
-}
-
-
-void Fan::update() {
-    for(auto& [param, value] : params) {
-        optChangeParam(param, value);
-    }
 }
 
 

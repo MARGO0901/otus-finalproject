@@ -22,13 +22,6 @@ Pump::Pump() : Device("Pump") {
 }
 
 
-void Pump::update() {
-    for(auto& [param, value] : params) {
-        optChangeParam(param, value);
-    }
-}
-
-
 int Pump::applySolution(const Solution& solution) {
     // Здесь логика применения решения
     // Например, если решение "включить охлаждение"

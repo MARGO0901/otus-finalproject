@@ -25,7 +25,7 @@ namespace units {
         return static_cast<double>(percent);
     }
 
-    constexpr double operator"" _times(long double onoff) {
-        return static_cast<double>(onoff);
+    constexpr int operator"" _times(unsigned long long onoff) {
+        return static_cast<int>(onoff);
     }
 }
