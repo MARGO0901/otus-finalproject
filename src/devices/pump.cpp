@@ -1,9 +1,9 @@
 #include "malfunction.h"
 #include <devices/pump.h>
 #include <devices/deviceregistry.h>
-#include <devices/units.h>
+#include <devices/literals.h>
 
-using namespace units;
+using namespace literals;
 
 namespace {
     bool _ = []() {
@@ -13,8 +13,8 @@ namespace {
 }
 
 Pump::Pump() : Device("Pump") {
-    params.emplace(DeviceParameter("Press", {0.f,10.f}, {4, 6}), 5.0_bar);
-    params.emplace(DeviceParameter("Temperature", {20.f, 120.f}, {60, 80}), 65.0_celsies);
+    params.emplace(DeviceParameter("Press", {0.f,10.f}, {4.f, 6.f}), 5.0_bar);
+    params.emplace(DeviceParameter("Temperature", {20.f, 120.f}, {60.f, 80.f}), 65.0_celsies);
     params.emplace(DeviceParameter("Current", {10.f, 50.f}, {30.f, 35.f}), 32.5_amper);
     params.emplace(DeviceParameter("Vibro", {0.f, 15.f}, {0.f, 3.f}), 1.5_mms);
 
@@ -50,7 +50,7 @@ Malfunction Pump::createOverheat() {
     overheating.description = "Temperature above 80";
     
     // Условия
-    overheating.conditions["Temperature"] = {60.0, 80.0}; 
+    overheating.conditions["Temperature"] = {80.1, 120.0}; 
     
     // Создание решений   
     overheating.solutions.push_back(Optimal("Включить охлаждение -> Снизить нагрузку -> Сбросить ошибку", 100));
@@ -69,7 +69,7 @@ Malfunction Pump::createVibration() {
     vibration.description = "Vibro above 3";
 
     // Условия
-    vibration.conditions["Vibro"] = {0.0, 3.0};
+    vibration.conditions["Vibro"] = {3.1, 15.0};
 
     // Создание решений   
     vibration.solutions.push_back(Optimal("Включить охлаждение -> Снизить нагрузку -> Сбросить ошибку", 100));
@@ -88,7 +88,7 @@ Malfunction Pump::createNoPressure() {
     noPress.description = "Press under 4";
 
     // Условия
-    noPress.conditions["Press"] = {4.0, 6.0};
+    noPress.conditions["Press"] = {0.0, 3.9};
 
     // Создание решений  
     noPress.solutions.push_back(Optimal("Запустить резервный насос → Проверить клапаны → Сбросить ошибку", 100));

@@ -51,5 +51,5 @@ public:
     std::vector<Solution> solutions;
 
     // Проверить, активна ли неисправность для данных параметров
-    bool isActive(const std::map<std::string, double> &params) const;
+    //bool isActive(const std::unordered_map<std::string, ParamValue> &params) const;
 };

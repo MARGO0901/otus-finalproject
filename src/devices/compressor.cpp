@@ -1,9 +1,9 @@
 #include "devices/deviceparameter.h"
 #include <devices/deviceregistry.h>
 #include <devices/compressor.h>
-#include <devices/units.h>
+#include <devices/literals.h>
 
-using namespace units;
+using namespace literals;
 
 namespace {
     bool _ = []() {
@@ -14,9 +14,9 @@ namespace {
 
 
 Compressor::Compressor() : Device("Compressor") {
-    params.emplace(DeviceParameter("Press", {0.f, 15.f}, {6, 9}), 7._bar);
+    params.emplace(DeviceParameter("Press", {0.f, 15.f}, {6.f, 9.f}), 7._bar);
     params.emplace(DeviceParameter("Oil Temperature", {20.f, 100.f}, {60.f, 80.f}), 70._celsies);
-    params.emplace(DeviceParameter("Oil Level", { 0.f, 100.f}, {60.f, 90.f}), 85._percent);
+    params.emplace(DeviceParameter("Oil Level", { 0, 100}, {60, 90}), 85);
     params.emplace(DeviceParameter("On/Off Counter", {0, 100}, {0, 10}), 5_times);
 
     malfunctions = createMalfunctions();
@@ -46,7 +46,7 @@ Malfunction Compressor::createOilLeak() {
     oilLeak.description = "Oil Level under 60";
     
     // Условия
-    oilLeak.conditions["Rpm"] = {60.0, 90.0};
+    oilLeak.conditions["Oil Level"] = {0, 61};
     
     // Создание решений   
     oilLeak.solutions.push_back(Optimal("Остановить → Проверить уплотнения → Долить масло", 100));
@@ -65,7 +65,7 @@ Malfunction Compressor::createOverPressure() {
     overPressure.description = "Pressure above 9";
     
     // Условия
-    overPressure.conditions["Pressure"] = {6.0, 9.0};
+    overPressure.conditions["Press"] = {9.1, 15.0};
     
     // Создание решений
     overPressure.solutions.push_back(Optimal("Сбросить давление → Проверить реле → Отрегулировать настройки", 100));
@@ -84,7 +84,7 @@ Malfunction Compressor::createOftenStart() {
     overPressure.description = "Start Counter above 10";
     
     // Условия
-    overPressure.conditions["Start Counter"] = {0, 10.0};
+    overPressure.conditions["On/Off Counter"] = {11, 100};
     
     // Создание решений
     overPressure.solutions.push_back(Optimal("Проверить утечки → Проверить ресивер → Настроить реле давления", 100));

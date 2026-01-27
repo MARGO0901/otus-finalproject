@@ -1,6 +1,6 @@
 #pragma once
 
-namespace units {
+namespace literals {
     constexpr double operator"" _bar(long double pressure) {
         return static_cast<double>(pressure);
     }
@@ -17,12 +17,12 @@ namespace units {
         return static_cast<double>(vibro);
     }
 
-    constexpr double operator"" _rpm(long double rpm) {
-        return static_cast<double>(rpm);
+    constexpr int operator"" _rpm(unsigned long long rpm) {
+        return static_cast<int>(rpm);
     }
 
-    constexpr double operator"" _percent(long double percent) {
-        return static_cast<double>(percent);
+    constexpr int operator"" _percent(unsigned long long percent) {
+        return static_cast<int>(percent);
     }
 
     constexpr int operator"" _times(unsigned long long onoff) {

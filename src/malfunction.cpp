@@ -1,6 +1,6 @@
-#include <malfunction.h>
-
-bool Malfunction::isActive(const std::map<std::string, double> &params) const {
+//#include <malfunction.h>
+/*
+bool Malfunction::isActive(const std::map<std::string, ParamValue> &params) const {
     for(const auto& [paramName, range] : conditions) {
         auto it = params.find(paramName);
         if (it != params.end()) {
@@ -11,4 +11,4 @@ bool Malfunction::isActive(const std::map<std::string, double> &params) const {
         }
     }
     return false;
-}
+}*/

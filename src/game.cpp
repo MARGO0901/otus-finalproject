@@ -1,3 +1,4 @@
+#include "malfunction.h"
 #include <game.h>
 
 #include <termios.h>
@@ -42,8 +43,8 @@ void Game::start() {
     startCV.notify_all();
 
     // Приглашение для ввода
-    ConsoleManager::clearInputLine(11);
-    ConsoleManager::showPrompt(11);   
+    ConsoleManager::clearInputLine();
+    ConsoleManager::showPrompt();   
 }
 
 
@@ -102,9 +103,9 @@ void Game::inputLoop() {
                 }
                 line.clear();
 
-                ConsoleManager::clearInputLine(11);
-                ConsoleManager::showPrompt(11);
-                ConsoleManager::gotoxy(2, 11);
+                ConsoleManager::clearInputLine();
+                ConsoleManager::showPrompt();
+                ConsoleManager::gotoInputLine();
             }
         }
         else if (ch == 127 || ch == 8) {  // Backspace
@@ -214,7 +215,7 @@ void Game::handleMenuCommand(const std::string& command) {
         running.store(false);
     }
     else if (command == "help") {
-        penguin.say("Доступные команды: start, exit, help");
+        penguin.say("Доступные команды: start, exit");
     }
     else {
         penguin.say("Неизвестная команда. Введи 'start' для начала игры");
@@ -286,9 +287,8 @@ void Game::runLevelInLoop(int level) {
         // Генерируем проблемы
         generateProblems(problemsAtOnce);
 
-        std::string msg = "Задача " + std::to_string(task + 1) + "/" + 
-                         std::to_string(tasks) + ". Выбери устройство для починки!";
-        penguin.say(msg);
+        std::string msg = "Задача " + std::to_string(task + 1) + "/" + std::to_string(tasks);
+        penguin.say(msg + ". Выбери устройство для починки!");
 
         // Ожидание ввода пользователя
         bool validInput = false;
@@ -298,20 +298,37 @@ void Game::runLevelInLoop(int level) {
             std::string userInput;
             if (getCommand(userInput)) {                
                 // Проверка валидности ввода
-                if (userInput == "1" || userInput == "2" || userInput == "3" || userInput == "4" || userInput == "5") {
-                    // Обработка выбора
-                    bool correct = checkSolution();
-                    updateScore(correct);
-                    
-                    if (correct) {
-                        penguin.setMood("happy");
-                        penguin.say("Правильно! +10 очков!");
-                    } else {
-                        penguin.setMood("sad");
-                        penguin.say("Ой... Неправильно.");
+                std::stringstream ss(userInput);
+                int number;
+                if (ss >> number) {
+                    if (number > 0 && number < devices.size()) {
+                        // Здесь должна быть проверка, есть ли несправность в выбранном устройстве
+                        // если нет, ждем следующего ввода
+
+                        // если да, пишем Устройство: такое-то Неисправность такая-то
+                        // дальше на экран список последовательностей действий
+                        penguin.say(msg + ". Выбери последовательность действий для починки!");
+                        if (getCommand(userInput)) {
+                            // Проверка валидности ввода
+                            std::stringstream ss1(userInput);
+                            int number1;
+                            if (ss1 >> number1) {
+                                // Обработка выбора
+                                bool correct;//= checkSolution();
+                                updateScore(correct);
+                                
+                                if (correct) {
+                                    penguin.setMood("happy");
+                                    penguin.say("Правильно! +10 очков!");
+                                } else {
+                                    penguin.setMood("sad");
+                                    penguin.say("Ой... Неправильно.");
+                                }
+                                
+                                userInput = true;
+                            }
+                        }
                     }
-                    
-                    userInput = true;
                 }
                 else if (userInput == "menu") {
                     currentState = State::MENU;
@@ -335,7 +352,7 @@ void Game::runLevelInLoop(int level) {
         }
         
         //Проверяем решение
-        bool correct = checkSolution(/* параметры */);
+        bool correct;// = checkSolution(/* параметры */);
         updateScore(correct);
         
         // Реакция пингвина
@@ -395,12 +412,19 @@ void Game::generateProblems(int count) {
         int deviceIndex = rand() % devices.size();
         Device* device = devices[deviceIndex].get();
 
-        //проверяем его неисправности
-        auto malfunctions = device->checkMalfunctions();
-        if (!malfunctions.empty()) {
-            int malfuntionIndex = rand() % malfunctions.size();
-            currentProblems.push_back(std::make_pair(device, malfunctions[malfuntionIndex]));
-        }
+        auto possibleMalfunctions = device->getMalfunctions();
+        if(!possibleMalfunctions.empty()) {
+            int malfunctionIndex = rand() % possibleMalfunctions.size();
+            Malfunction selectedMalfunction = possibleMalfunctions[malfunctionIndex];
+
+            ConsoleManager::printDebug("deviceIndex = " + std::to_string(deviceIndex) + " malfunctionIndex=" +
+                std::to_string(malfunctionIndex));
+
+            //Установить неисправность в прибор
+            device->addMalfunctions(selectedMalfunction);
+
+            currentProblems.push_back({deviceIndex, selectedMalfunction});                        
+        }    
     }
 }
 
@@ -409,13 +433,11 @@ void Game::showDevicesStatus() {
     // Сохранение позиции курсора
     ConsoleManager::savePosition();
 
-    // Очистка области под пингвином (строки 5-9)
-    for (int i = 5; i <= 9; i++) {
-        ConsoleManager::clearInputLine(i);
-    }
+    // Очистка области приборов
+    ConsoleManager::clearDeviceLine();
 
     // Показать приборы
-    ConsoleManager::gotoxy(0, 6);
+    ConsoleManager::gotoDeviceLine();
     ConsoleManager::print("===Devices===\n");
     for (auto &device : devices) {
         std::string params;
@@ -449,7 +471,30 @@ std::string Game::getQualification() const {
 }
 
 
-bool Game::checkSolution() {
+bool Game::checkSolution(int deviceIndex, const std::string& action) {
+    if(deviceIndex <= 0 || deviceIndex >= devices.size()) {
+        return false;
+    }
+
+    Device* device = devices[deviceIndex].get();
+
+    // Поиск активной неисправности для этого прибора
+    for (const auto& problem : currentProblems) {
+        if (problem.deviceIndex == deviceIndex) {
+            // Проверка, подходит ли действие для этой неисправности
+            return isActionValidForMalfunction(action, problem.malfunction);
+        }
+    }
+    return true;
+}
+
+
+bool Game::isActionValidForMalfunction(const std::string& action, const Malfunction& malfunction) {
+ /*   for(const auto& solution : malfunction.solutions) {
+        if (solution.action == action) {
+            return solution.score > 50;
+        }
+    }*/
     return true;
 }
 

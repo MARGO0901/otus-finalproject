@@ -9,7 +9,7 @@ Penguin::Penguin() : mood("normal"), currentMessage("Привет! Введи л
 
 void Penguin::drawPenguin() {
     // Пингвин всегда рисуется с начала экрана
-    ConsoleManager::gotoxy(0, 1);
+    ConsoleManager::gotoPenguinLine();
 
     ConsoleManager::print("    -\n"); 
 
@@ -24,8 +24,8 @@ void Penguin::drawPenguin() {
 // Обновляем только лицо и сообщение
 void Penguin::updateFace() {
     // Перемещаемся к лицу пингвина (строка 2)
-    ConsoleManager::clearInputLine(2);
-    ConsoleManager::gotoxy(0, 2);
+    ConsoleManager::clearPenguinFaceLine();
+    ConsoleManager::gotoPenguinFaceLine();
   
     std::string emoji;
     if (mood == "happy") {
@@ -36,7 +36,7 @@ void Penguin::updateFace() {
         emoji = "  ('v')   " + currentMessage;
     }
     ConsoleManager::print(emoji);
-    ConsoleManager::gotoxy(2, 11);
+    ConsoleManager::gotoInputLine();
 }
 
 

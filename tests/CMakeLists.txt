@@ -8,6 +8,10 @@ target_include_directories(device_registry_tests SYSTEM PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
 
+target_sources(device_registry_tests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/devices/device.cpp 
+)
+
 target_link_libraries(device_registry_tests PRIVATE Boost::unit_test_framework)
 
 enable_testing()

@@ -8,7 +8,6 @@ class TestDevice: public Device {
 public:
     TestDevice() : Device("TestDevice") {}
 
-    void update() override {}
     std::vector<Malfunction> createMalfunctions() override { return std::vector<Malfunction>(); }
     int applySolution(const Solution& solution) override { return 0; }
 };

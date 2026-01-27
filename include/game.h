@@ -46,9 +46,9 @@ private:
     int currentLevel;
     Penguin penguin;
     int totalScore;
-    
+
     // Проблемы
-    std::vector<std::pair<Device*, Malfunction>> currentProblems;
+    std::vector<DeviceProblem> currentProblems;
 
 public:
     Game(const std::vector<std::string>& deviceNames);
@@ -75,8 +75,10 @@ private:
     void showDevicesStatus();
     bool getCommand(std::string& cmd);
     void processUserInput(const std::string& input);
-    bool checkSolution();
+    bool checkSolution(int deviceIndex, const std::string& action);
+    bool isActionValidForMalfunction(const std::string& action, const Malfunction& malfunction);
     void updateScore(bool correct);
+    
            
     // результаты    
     std::string getQualification() const;

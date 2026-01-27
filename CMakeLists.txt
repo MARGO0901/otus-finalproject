@@ -20,6 +20,7 @@ target_sources(penguin PRIVATE
     src/game.cpp 
     src/malfunction.cpp 
     src/penguin.cpp 
+    src/devices/device.cpp
     src/devices/fan.cpp 
     src/devices/pump.cpp
     src/devices/compressor.cpp

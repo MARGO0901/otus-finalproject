@@ -1,9 +1,9 @@
 #include "devices/device.h"
 #include <devices/deviceregistry.h>
 #include <devices/fan.h>
-#include <devices/units.h>
+#include <devices/literals.h>
 
-using namespace units;
+using namespace literals;
 
 namespace {
     bool _ = []() {
@@ -14,9 +14,9 @@ namespace {
 
 
 Fan::Fan() : Device("Fan") {
-    params.emplace(DeviceParameter("Rpm", {0, 2000}, {1200, 1500}), 1350._rpm);
-    params.emplace(DeviceParameter("Current", {5, 20}, { 8, 12}), 10._amper);
-    params.emplace(DeviceParameter("Temperature", {20, 120}, {40, 70}), 65._celsies);
+    params.emplace(DeviceParameter("Rpm", {0, 2000}, {1200, 1500}), 1350_rpm);
+    params.emplace(DeviceParameter("Current", {5.f, 20.f}, { 8.f, 12.f}), 10._amper);
+    params.emplace(DeviceParameter("Temperature", {20.f, 120.f}, {40.f, 70.f}), 65._celsies);
 
     malfunctions = createMalfunctions();
 }
@@ -45,7 +45,7 @@ Malfunction Fan::createLowRpm() {
     lowRpm.description = "Rpm under 1200";
     
     // Условия
-    lowRpm.conditions["Rpm"] = {1200.0, 1500.0};
+    lowRpm.conditions["Rpm"] = {0, 1199};
     
     // Создание решений   
     lowRpm.solutions.push_back(Optimal("Проверить питание → Очистить лопатки → Отрегулировать скорость", 100));
@@ -64,7 +64,7 @@ Malfunction Fan::createOverheat() {
     overheating.description = "Temperature above 70°C";
     
     // Условия: температура должна быть > 70°C
-    overheating.conditions["Temperature"] = {40.0, 70.0};
+    overheating.conditions["Temperature"] = {70.1, 120.0};
     
     // Создание решений 
     overheating.solutions.push_back(Optimal("Остановить → Очистить от пыли → Проверить подшипники", 100));
@@ -83,7 +83,7 @@ Malfunction Fan::createOverCurrent() {
     overCurrent.description = "Current above 12";
     
     // Условия
-    overCurrent.conditions["Current"] = {8.0, 12.0};
+    overCurrent.conditions["Current"] = {12.1, 20.0};
     
     // Создание решений 
     overCurrent.solutions.push_back(Optimal("Проверить нагрузку → Проверить подшипники → Отключить для диагностики", 100));

@@ -1,32 +1,32 @@
 <mxfile host="65bd71144e">
     <diagram id="ZN6GzPPyWvrl046P_Pg9" name="Page-1">
-        <mxGraphModel dx="1768" dy="1648" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1648" dy="1552" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
                 <mxCell id="2" value="Game" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="310" y="-200" width="300" height="580" as="geometry"/>
+                    <mxGeometry x="310" y="-273" width="300" height="590" as="geometry"/>
                 </mxCell>
-                <mxCell id="3" value="&lt;div&gt;- inputThread: thread&lt;/div&gt;&lt;div&gt;- mainThread: thread&lt;/div&gt;&lt;div&gt;- deviceThread: thread&lt;/div&gt;&lt;div&gt;- state: State&lt;/div&gt;&lt;div&gt;- running: atomic&amp;lt;bool&amp;gt;&lt;/div&gt;&lt;div&gt;- startMutex: mutex&lt;/div&gt;&lt;div&gt;- startCV: condition_variable;&lt;/div&gt;&lt;div&gt;- inputMutex: mutex&lt;/div&gt;&lt;div&gt;- inputBuffer: string&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;- devices:&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;vector&amp;lt;unique_ptr&amp;lt;Device&amp;gt;&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;- deviceMutex: mutex&lt;/span&gt;&lt;/div&gt;&lt;div&gt;- needsRedrawDevice: bool&lt;/div&gt;- currentLevel: int&lt;div&gt;- totalScore: int&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;- penguin: Penguin&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;- currentProblems: vector&amp;lt;pair&amp;lt;Device*, Malfuncton&amp;gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="2" vertex="1">
-                    <mxGeometry y="26" width="300" height="244" as="geometry"/>
+                <mxCell id="3" value="&lt;div&gt;- inputThread: thread&lt;/div&gt;&lt;div&gt;- mainThread: thread&lt;/div&gt;&lt;div&gt;- deviceThread: thread&lt;/div&gt;&lt;div&gt;- state: State&lt;/div&gt;&lt;div&gt;- running: atomic&amp;lt;bool&amp;gt;&lt;/div&gt;&lt;div&gt;- startMutex: mutex&lt;/div&gt;&lt;div&gt;- startCV: condition_variable;&lt;/div&gt;&lt;div&gt;- inputMutex: mutex&lt;/div&gt;&lt;div&gt;- inputBuffer: string&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;- devices:&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;vector&amp;lt;unique_ptr&amp;lt;Device&amp;gt;&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;- deviceMutex: mutex&lt;/span&gt;&lt;/div&gt;&lt;div&gt;- needsRedrawDevice: bool&lt;/div&gt;- currentLevel: int&lt;div&gt;- totalScore: int&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;- penguin: Penguin&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;- currentProblems: vector&amp;lt;pair&amp;lt;Device*, Malfuncton&amp;gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;- currentProblems: vector&amp;lt;DeviceProblem&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="2" vertex="1">
+                    <mxGeometry y="26" width="300" height="254" as="geometry"/>
                 </mxCell>
                 <mxCell id="4" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="2" vertex="1">
-                    <mxGeometry y="270" width="300" height="8" as="geometry"/>
+                    <mxGeometry y="280" width="300" height="8" as="geometry"/>
                 </mxCell>
                 <mxCell id="5" value="&lt;div&gt;+ Game(const vector&amp;lt;string&amp;gt;&amp;amp;)&lt;/div&gt;&lt;div&gt;+ ~Game();&lt;/div&gt;&lt;div&gt;+ start(): void&lt;/div&gt;&lt;div&gt;+ stop(): void&lt;/div&gt;&lt;div&gt;- inputLoop();&lt;/div&gt;&lt;div&gt;- mainGameLoop();&lt;/div&gt;&lt;div&gt;- deviceUpdateLoop();&lt;/div&gt;&lt;div&gt;- proccessCommand(std::string&amp;amp;): void&lt;/div&gt;&lt;div&gt;- handleMenuCommand(consr string&amp;amp;): void&lt;/div&gt;&lt;div&gt;- handleGameCommand(const string&amp;amp;): void&lt;/div&gt;&lt;div&gt;- showMenu(): void&lt;/div&gt;- runLevelInLoop(int): void&lt;div&gt;- generateProblems(int): void&lt;/div&gt;&lt;div&gt;- showDeviceStatus(): void&lt;/div&gt;&lt;div&gt;- getCommand(string&amp;amp;): void&lt;/div&gt;&lt;div&gt;- processUserInput(const string&amp;amp;) void&lt;/div&gt;&lt;div&gt;- checkSolution(): bool&lt;/div&gt;&lt;div&gt;- updateScore(bool): void&lt;/div&gt;&lt;div&gt;- getQualification(): string&lt;/div&gt;&lt;div&gt;- getTotalScore(): int&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="2" vertex="1">
-                    <mxGeometry y="278" width="300" height="302" as="geometry"/>
+                    <mxGeometry y="288" width="300" height="302" as="geometry"/>
                 </mxCell>
                 <mxCell id="6" value="Device" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="60" y="420" width="300" height="260" as="geometry"/>
+                    <mxGeometry x="60" y="349" width="300" height="340" as="geometry"/>
                 </mxCell>
-                <mxCell id="7" value="# name: string&lt;div&gt;# state: State&lt;/div&gt;&lt;div&gt;# params: unordered_map&amp;lt;string, DeviceParameter&amp;gt;&lt;/div&gt;&lt;div&gt;# malfunctions: vector&amp;lt;Malfunction&amp;gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="6" vertex="1">
-                    <mxGeometry y="26" width="300" height="74" as="geometry"/>
+                <mxCell id="7" value="# name: string&lt;div&gt;# state: State&lt;/div&gt;&lt;div&gt;# params: unordered_map&amp;lt;string, DeviceParameter&amp;gt;&lt;/div&gt;&lt;div&gt;# malfunctions: vector&amp;lt;Malfunction&amp;gt;&lt;/div&gt;&lt;div&gt;# activeMalfunctions: vector&amp;lt;Malfunction&amp;gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="6" vertex="1">
+                    <mxGeometry y="26" width="300" height="84" as="geometry"/>
                 </mxCell>
                 <mxCell id="8" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="6" vertex="1">
-                    <mxGeometry y="100" width="300" height="8" as="geometry"/>
+                    <mxGeometry y="110" width="300" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="9" value="&lt;div&gt;+ createMalfunction(): vector&amp;lt;Malfunction&amp;gt;&lt;/div&gt;+ update(): void&lt;div&gt;+ checkMalfunction(): vector&amp;lt;Malfunction&amp;gt;&lt;/div&gt;&lt;div&gt;+ applySolution(Solution&amp;amp;): int&lt;/div&gt;&lt;div&gt;+ getName(): string&lt;/div&gt;&lt;div&gt;+ getState(): State&lt;/div&gt;&lt;div&gt;+ getParams(): map&amp;lt;string, double&amp;gt;&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ setParam(string&amp;amp;, double&amp;amp;)&lt;/div&gt;&lt;div&gt;# optChangeParam(const DeviceParametr,T): void&lt;/div&gt;&lt;div&gt;# setParamValue(const string,T): bool&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="6" vertex="1">
-                    <mxGeometry y="108" width="300" height="152" as="geometry"/>
+                <mxCell id="9" value="&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;+ update(): void&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;+ addMalfunction(const Malfunction&amp;amp;): void&lt;/span&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;+ getActiveMalfunctions(): vector&amp;lt;Malfunction&amp;gt;&amp;amp;&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;+ getMalfunctions(): vector&amp;lt;Malfunction&amp;amp;&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;+ getName(): string&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;+ getState(): State&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;+ getParams(): map&amp;lt;string, double&amp;gt;&amp;nbsp;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;# optChangeParam(const DeviceParametr,T): void&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;# setParamValue(const string,T): bool&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;# createMalfunction(): vector&amp;lt;Malfunction&amp;gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63);&quot;&gt;# applySolution(Solution&amp;amp;): int&lt;/span&gt;&lt;/div&gt;&lt;div&gt;- applyMalfunctionEffect(): void&lt;/div&gt;&lt;div&gt;- applyMalfunction(const Malfunction&amp;amp;): void&lt;/div&gt;&lt;div&gt;- resetMalfunction(): void&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="6" vertex="1">
+                    <mxGeometry y="118" width="300" height="222" as="geometry"/>
                 </mxCell>
                 <mxCell id="13" value="" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;" parent="1" source="6" target="2" edge="1">
                     <mxGeometry width="160" relative="1" as="geometry">
@@ -66,7 +66,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="29" value="Malfunction" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="440" y="493" width="270" height="124" as="geometry"/>
+                    <mxGeometry x="480" y="457" width="270" height="124" as="geometry"/>
                 </mxCell>
                 <mxCell id="30" value="+ name: string&lt;div&gt;+ description: string&lt;/div&gt;&lt;div&gt;+ conditions:map&amp;lt;string, pair&amp;lt;double, double&amp;gt;&amp;gt;&lt;/div&gt;&lt;div&gt;+ solutions: vector&amp;lt;Solution&amp;gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="29" vertex="1">
                     <mxGeometry y="26" width="270" height="64" as="geometry"/>
@@ -78,7 +78,7 @@
                     <mxGeometry y="98" width="270" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="38" value="Solution" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="833" y="512" width="140" height="80" as="geometry"/>
+                    <mxGeometry x="830" y="490" width="140" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="39" value="+ description:string&lt;div&gt;+ score: int&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;+ comment: string&lt;/div&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="38" vertex="1">
                     <mxGeometry y="26" width="140" height="54" as="geometry"/>
@@ -99,7 +99,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="44" value="Penguin" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="690" y="215" width="160" height="120" as="geometry"/>
+                    <mxGeometry x="780" y="-40" width="160" height="120" as="geometry"/>
                 </mxCell>
                 <mxCell id="45" value="- mood: string&lt;div&gt;- currentMessage: string&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="44" vertex="1">
                     <mxGeometry y="26" width="160" height="34" as="geometry"/>
@@ -205,7 +205,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="88" value="ConsoleManager" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="690" y="10" width="160" height="160" as="geometry"/>
+                    <mxGeometry x="780" y="-273" width="160" height="160" as="geometry"/>
                 </mxCell>
                 <mxCell id="89" value="- consoleMutex_: mitex" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="88" vertex="1">
                     <mxGeometry y="26" width="160" height="26" as="geometry"/>
@@ -230,7 +230,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="94" value="State" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="110" y="40" width="100" height="100" as="geometry"/>
+                    <mxGeometry x="100" y="-33" width="100" height="100" as="geometry"/>
                 </mxCell>
                 <mxCell id="95" value="MENU&lt;div&gt;PLAYING&lt;/div&gt;&lt;div&gt;GAME_OVER&lt;/div&gt;&lt;div&gt;EXIT&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="94" vertex="1">
                     <mxGeometry y="26" width="100" height="74" as="geometry"/>
@@ -241,19 +241,40 @@
                         <mxPoint x="320" y="260" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="100" value="DeviceParameter" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="-235" y="424" width="200" height="88" as="geometry"/>
+                <mxCell id="100" value="DeviceParameter" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="-235" y="419" width="200" height="88" as="geometry"/>
                 </mxCell>
-                <mxCell id="101" value="+ name_: string&lt;div&gt;+ range_: pair&amp;lt;double, double&amp;gt;&lt;/div&gt;&lt;div&gt;+ optRange_: pair&amp;lt;double, double&amp;gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="100">
+                <mxCell id="101" value="+ name_: string&lt;div&gt;+ range_: pair&amp;lt;double, double&amp;gt;&lt;/div&gt;&lt;div&gt;+ optRange_: pair&amp;lt;double, double&amp;gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="100" vertex="1">
                     <mxGeometry y="26" width="200" height="54" as="geometry"/>
                 </mxCell>
-                <mxCell id="102" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="100">
+                <mxCell id="102" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="100" vertex="1">
                     <mxGeometry y="80" width="200" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="105" value="" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;" edge="1" parent="1" source="100" target="6">
+                <mxCell id="105" value="" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;" parent="1" source="100" target="6" edge="1">
                     <mxGeometry width="160" relative="1" as="geometry">
                         <mxPoint x="-110" y="270" as="sourcePoint"/>
                         <mxPoint x="50" y="270" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="108" value="DeviceProblem" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="780" y="160" width="160" height="78" as="geometry"/>
+                </mxCell>
+                <mxCell id="109" value="+ deviceIndex: int&lt;div&gt;+ Malfunctin malfunction&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="108">
+                    <mxGeometry y="26" width="160" height="44" as="geometry"/>
+                </mxCell>
+                <mxCell id="110" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="108">
+                    <mxGeometry y="70" width="160" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="112" value="" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;" edge="1" parent="1" source="29" target="108">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="500" y="310" as="sourcePoint"/>
+                        <mxPoint x="660" y="310" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="113" value="" style="endArrow=diamondThin;endFill=1;endSize=24;html=1;" edge="1" parent="1" source="108" target="2">
+                    <mxGeometry width="160" relative="1" as="geometry">
+                        <mxPoint x="500" as="sourcePoint"/>
+                        <mxPoint x="660" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
             </root>
