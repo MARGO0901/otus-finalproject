@@ -41,17 +41,17 @@ int Fan::applySolution(const Solution& solution) {
 Malfunction Fan::createLowRpm() {
     // неисправность "Низкие обороты"
     Malfunction lowRpm;
-    lowRpm.name = "Low Rpm";
+    lowRpm.name = "Низкие обороты";
     lowRpm.description = "Rpm under 1200";
     
     // Условия
     lowRpm.conditions["Rpm"] = {0, 1199};
     
     // Создание решений   
-    lowRpm.solutions.push_back(Optimal("Проверить питание → Очистить лопатки → Отрегулировать скорость", 100));
-    lowRpm.solutions.push_back(Accept("Увеличить напряжение → Проверить скорость", 80));
-    lowRpm.solutions.push_back(Critical("Заменить вентилятор → Вызвать мастера", 40));
-    lowRpm.solutions.push_back(Failure("Отключить вентилятор", 0));
+    lowRpm.solutions.push_back(Optimal("Проверить щетки, измерить напряжение", 100));
+    lowRpm.solutions.push_back(Accept("Почистить воздуховод, увеличить скорость", 80));
+    lowRpm.solutions.push_back(Critical("Заменить двигатель", 40));
+    lowRpm.solutions.push_back(Failure("Вручную раскрутить лопасти", 0));
 
     return lowRpm;
 }
@@ -60,17 +60,17 @@ Malfunction Fan::createLowRpm() {
 Malfunction Fan::createOverheat() {
     // неисправность "Перегрев"
     Malfunction overheating;
-    overheating.name = "Overheat";
+    overheating.name = "Перегрев";
     overheating.description = "Temperature above 70°C";
     
     // Условия: температура должна быть > 70°C
-    overheating.conditions["Temperature"] = {70.1, 120.0};
+    overheating.conditions["Temperature"] = {71.0, 120.0};
     
     // Создание решений 
-    overheating.solutions.push_back(Optimal("Остановить → Очистить от пыли → Проверить подшипники", 100));
-    overheating.solutions.push_back(Accept("Снизить нагрузку → Увеличить охлаждение", 70));
-    overheating.solutions.push_back(Critical("Обдуть сжатым воздухом на ходу", 30));
-    overheating.solutions.push_back(Failure("Залить водой для охлаждения", 0));
+    overheating.solutions.push_back(Optimal("Остановить, дать остыть, проверить ток", 100));
+    overheating.solutions.push_back(Accept("Снизить скорость, включить обдув", 70));
+    overheating.solutions.push_back(Critical("Временно отключить термозащиту", 30));
+    overheating.solutions.push_back(Failure("Залить корпус водой для охлаждения", 0));
 
     return overheating;
 }
@@ -79,17 +79,17 @@ Malfunction Fan::createOverheat() {
 Malfunction Fan::createOverCurrent() {
     // неисправность "Повышенный ток"
     Malfunction overCurrent;
-    overCurrent.name = "Overcurrent";
+    overCurrent.name = "Повышенный ток";
     overCurrent.description = "Current above 12";
     
     // Условия
-    overCurrent.conditions["Current"] = {12.1, 20.0};
+    overCurrent.conditions["Current"] = {13.0, 20.0};
     
     // Создание решений 
-    overCurrent.solutions.push_back(Optimal("Проверить нагрузку → Проверить подшипники → Отключить для диагностики", 100));
-    overCurrent.solutions.push_back(Accept("Снизить скорость → Контролировать температуру", 80));
-    overCurrent.solutions.push_back(Critical("Увеличить напряжение", 20));
-    overCurrent.solutions.push_back(Failure("Отключить защиту по току", 0));
+    overCurrent.solutions.push_back(Optimal("Проверить сопротивление обмоток", 100));
+    overCurrent.solutions.push_back(Accept("Снизить нагрузку на привод", 80));
+    overCurrent.solutions.push_back(Critical("Увеличить напряжение на 10%", 20));
+    overCurrent.solutions.push_back(Failure("Заменить предохранитель на более мощный", 0));
 
     return overCurrent;
 }

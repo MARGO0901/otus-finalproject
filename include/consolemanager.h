@@ -36,17 +36,22 @@ public:
     }
 
     static void gotoInputLine() {
-        gotoxy(2, 11);
+        gotoxy(2, 15);
     }
 
     static void clearInputLine() {
         std::lock_guard<std::mutex> lock(consoleMutex_);
-        std::cout << "\033[" << 12 << ";1H\033[2K" << std::flush;
+        std::cout << "\033[" << 16 << ";1H\033[2K" << std::flush;
     }
 
     static void gotoDeviceLine() {
         gotoxy(0, 6);
     }
+
+    static void gotoActionLine() {
+        gotoxy(0, 11);
+    }
+
 
     static void gotoPenguinLine() {
         gotoxy(0,1);
@@ -67,14 +72,21 @@ public:
         std::cout << "\033[" << 7 << ";1H\033[2K" << std::flush;
         std::cout << "\033[" << 8 << ";1H\033[2K" << std::flush;
         std::cout << "\033[" << 9 << ";1H\033[2K" << std::flush;
-        std::cout << "\033[" << 10 << ";1H\033[2K" << std::flush;
+    }
+
+    static void clearActionArea() {
+        std::lock_guard<std::mutex> lock(consoleMutex_);
+        std::cout << "\033[" << 12 << ";1H\033[2K" << std::flush;
+        std::cout << "\033[" << 13 << ";1H\033[2K" << std::flush;
+        std::cout << "\033[" << 14 << ";1H\033[2K" << std::flush;
+        std::cout << "\033[" << 15 << ";1H\033[2K" << std::flush;
     }
 
     static void showPrompt() {
         std::lock_guard<std::mutex> lock(consoleMutex_);
         //на позицию 
-        std::cout << "\033[" << 12 << ";1H> \033[?25h" << std::flush;
-        std::cout << "\033[" << (12) << ";" << 2 << "H" << std::flush;
+        std::cout << "\033[" << 16 << ";1H> \033[?25h" << std::flush;
+        std::cout << "\033[" << (16) << ";" << 2 << "H" << std::flush;
     }
 
     static void savePosition() {
@@ -89,7 +101,7 @@ public:
         std::cout.flush();
     }
 
-    static void printDebug(const std::string& str, int num = 12) {
+    static void printDebug(const std::string& str, int num = 17) {
         savePosition();
         std::cout << "\033[" << num + 1 << ";1H\033[2K" << std::flush;
         gotoxy(0, num);

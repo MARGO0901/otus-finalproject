@@ -1,7 +1,7 @@
 #include <penguin.h>
 #include <consolemanager.h>
 
-Penguin::Penguin() : mood("normal"), currentMessage("Привет! Введи любые символы, чтобы начать") {
+Penguin::Penguin() : mood("normal"), currentMessage("Привет! Введи 'start', чтобы начать") {
     ConsoleManager::clearScreen();
     drawPenguin();
 }
@@ -31,7 +31,9 @@ void Penguin::updateFace() {
     if (mood == "happy") {
         emoji = "  (^v^)   " + currentMessage;
     } else if(mood == "sad") {
-        emoji = "  (-v-)   " + currentMessage;
+        emoji = "  (´v`)   " + currentMessage;
+    } else if (mood == "angry") {
+        emoji = "  (>v<)   " + currentMessage;
     } else {
         emoji = "  ('v')   " + currentMessage;
     }

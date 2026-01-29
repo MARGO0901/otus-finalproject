@@ -7,8 +7,17 @@
 #include <condition_variable>
 #include <vector>
 
+#include "malfunction.h"
 #include "penguin.h"
 #include "./devices/device.h"
+
+struct CurrentTask {
+    int deviceIndex;
+    Malfunction malfunction;
+    std::vector<Solution> shuffledSolutions;
+    int selectedSolutionIndex = -1;
+    int correctPoints = 0;          //очки за ответ
+};
 
 
 class Game {
@@ -47,9 +56,6 @@ private:
     Penguin penguin;
     int totalScore;
 
-    // Проблемы
-    std::vector<DeviceProblem> currentProblems;
-
 public:
     Game(const std::vector<std::string>& deviceNames);
     ~Game();
@@ -71,13 +77,19 @@ private:
     // игровая логика
     //void showMainMenu();
     void runLevelInLoop(int level);
-    void generateProblems(int count);
+    std::vector<CurrentTask> generateProblemsWithSolutions(int count);
+    bool processSingleTask(CurrentTask& task);
+    bool askToSelectDevice(int& selectedIndex);
+    void showProblemAndSolutions(const CurrentTask& task);
+    bool getUserSolutionChoice(CurrentTask& task);
+    void checkAndScore(CurrentTask& task);
+    void updateDeviceStatusWithTimer(std::chrono::steady_clock::time_point& lastUpdate);
+    void completeLevel(int level);
+
     void showDevicesStatus();
     bool getCommand(std::string& cmd);
-    void processUserInput(const std::string& input);
-    bool checkSolution(int deviceIndex, const std::string& action);
-    bool isActionValidForMalfunction(const std::string& action, const Malfunction& malfunction);
     void updateScore(bool correct);
+
     
            
     // результаты    

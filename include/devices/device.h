@@ -8,11 +8,6 @@
 
 using ParamValue = std::variant<double, int>;
 
-struct DeviceProblem {
-    int deviceIndex;
-    Malfunction malfunction;
-};
-
 
 class Device {
 protected:
@@ -66,6 +61,10 @@ public:
     virtual void update();
     // Установить неисправность в прибор
     void addMalfunctions(const Malfunction& malfunction);
+
+    void clearMalfunctions() {
+        activeMalfunctions.clear();
+    }
 
     const std::vector<Malfunction>& getActiveMalfunctions() const {
         return activeMalfunctions; 

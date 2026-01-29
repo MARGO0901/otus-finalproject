@@ -42,17 +42,17 @@ int Compressor::applySolution(const Solution& solution) {
 Malfunction Compressor::createOilLeak() {
     // неисправность "Утечка масла"
     Malfunction oilLeak;
-    oilLeak.name = "Oil Leak";
+    oilLeak.name = "Утечка масла";
     oilLeak.description = "Oil Level under 60";
     
     // Условия
-    oilLeak.conditions["Oil Level"] = {0, 61};
+    oilLeak.conditions["Oil Level"] = {0, 59};
     
     // Создание решений   
-    oilLeak.solutions.push_back(Optimal("Остановить → Проверить уплотнения → Долить масло", 100));
-    oilLeak.solutions.push_back(Accept("Долить масло", 60));
-    oilLeak.solutions.push_back(Critical("Увеличить давление", 30));
-    oilLeak.solutions.push_back(Failure("Заменить масло на более густое", 0));
+    oilLeak.solutions.push_back(Optimal("Остановить, найти течь, подтянуть соединения", 100));
+    oilLeak.solutions.push_back(Accept("Долить масло, мониторить уровень", 60));
+    oilLeak.solutions.push_back(Critical("Увеличить вязкость масла добавкой", 30));
+    oilLeak.solutions.push_back(Failure("Загерметизировать течь силиконом", 0));
 
     return oilLeak;
 }
@@ -61,17 +61,17 @@ Malfunction Compressor::createOilLeak() {
 Malfunction Compressor::createOverPressure() {
     // неисправность "Высокое давление"
     Malfunction overPressure;
-    overPressure.name = "Over Pressure";
+    overPressure.name = "Высокое давление";
     overPressure.description = "Pressure above 9";
     
     // Условия
-    overPressure.conditions["Press"] = {9.1, 15.0};
+    overPressure.conditions["Press"] = {10.0, 15.0};
     
     // Создание решений
-    overPressure.solutions.push_back(Optimal("Сбросить давление → Проверить реле → Отрегулировать настройки", 100));
-    overPressure.solutions.push_back(Accept("Отключить нагрузку → Проверить манометр", 75));
-    overPressure.solutions.push_back(Critical("Стравить давление через аварийный клапан", 40));
-    overPressure.solutions.push_back(Failure("Отключить датчик давления", 0));
+    overPressure.solutions.push_back(Optimal("Сбросить через клапан, проверить реле", 100));
+    overPressure.solutions.push_back(Accept("Отключить нагрузку, проверить манометр", 75));
+    overPressure.solutions.push_back(Critical("Временно стравить в атмосферу", 40));
+    overPressure.solutions.push_back(Failure("Закоротить контакты датчика", 0));
    
     return overPressure;
 }
@@ -87,10 +87,10 @@ Malfunction Compressor::createOftenStart() {
     overPressure.conditions["On/Off Counter"] = {11, 100};
     
     // Создание решений
-    overPressure.solutions.push_back(Optimal("Проверить утечки → Проверить ресивер → Настроить реле давления", 100));
-    overPressure.solutions.push_back(Accept("Проверить давление отключения → Проверить клапаны", 85));
-    overPressure.solutions.push_back(Critical("Отключить автовключение → Включать вручную", 25));
-    overPressure.solutions.push_back(Failure("Заблокировать выключатель во включенном положении", 0));
+    overPressure.solutions.push_back(Optimal("Найти утечку, проверить ресивер", 100));
+    overPressure.solutions.push_back(Accept("Отрегулировать гистерезис реле", 85));
+    overPressure.solutions.push_back(Critical("Включить в ручной режим", 25));
+    overPressure.solutions.push_back(Failure("Заблокировать пускатель", 0));
    
     return overPressure;
 }

@@ -46,17 +46,17 @@ std::vector<Malfunction> Pump::createMalfunctions() {
 Malfunction Pump::createOverheat() {
     // неисправность "Перегрев"
     Malfunction overheating;
-    overheating.name = "Overheat";
+    overheating.name = "Перегрев";
     overheating.description = "Temperature above 80";
     
     // Условия
-    overheating.conditions["Temperature"] = {80.1, 120.0}; 
+    overheating.conditions["Temperature"] = {81.0, 120.0}; 
     
     // Создание решений   
-    overheating.solutions.push_back(Optimal("Включить охлаждение -> Снизить нагрузку -> Сбросить ошибку", 100));
-    overheating.solutions.push_back(Accept("Снизить нагрузку -> Сбросить ошибку", 80));
-    overheating.solutions.push_back(Critical("Остановить насос -> Вызвать ремонт", 40));
-    overheating.solutions.push_back(Failure("Увеличить нагрузку -> Отключить сигнализацию", 0));
+    overheating.solutions.push_back(Optimal("Снизить обороты, проверить термодатчик", 100));
+    overheating.solutions.push_back(Accept("Включить допохлаждение, сбросить аварию", 80));
+    overheating.solutions.push_back(Critical("Остановить, вызвать ремонтников", 40));
+    overheating.solutions.push_back(Failure("Увеличить нагрузку для прогона", 0));
 
     return overheating;
 }
@@ -65,17 +65,17 @@ Malfunction Pump::createOverheat() {
 Malfunction Pump::createVibration() {
     // неисправность Вибрация
     Malfunction vibration;
-    vibration.name = "Vibration";
+    vibration.name = "Вибрация";
     vibration.description = "Vibro above 3";
 
     // Условия
-    vibration.conditions["Vibro"] = {3.1, 15.0};
+    vibration.conditions["Vibro"] = {4.0, 15.0};
 
     // Создание решений   
-    vibration.solutions.push_back(Optimal("Включить охлаждение -> Снизить нагрузку -> Сбросить ошибку", 100));
-    vibration.solutions.push_back(Accept("Проверить крепления → Уменьшить обороты → Сбросить ошибку", 80));
-    vibration.solutions.push_back(Critical("Проверить работу → Увеличить охлаждение", 30));
-    vibration.solutions.push_back(Failure("Закрепить дополнительными болтами → Увеличить нагрузку", 0));
+    vibration.solutions.push_back(Optimal("Запустить резерв, проверить балансировку", 100));
+    vibration.solutions.push_back(Accept("Ослабить крепеж, перезапустить", 80));
+    vibration.solutions.push_back(Critical("Увеличить подачу смазки", 30));
+    vibration.solutions.push_back(Failure("Закрепить струбцинами, не останавливая", 0));
 
     return vibration;
 }
@@ -84,17 +84,17 @@ Malfunction Pump::createVibration() {
 Malfunction Pump::createNoPressure() {
     // неисправность Нет давления
     Malfunction noPress;
-    noPress.name = "No Pressure";
+    noPress.name = "Нет давления";
     noPress.description = "Press under 4";
 
     // Условия
-    noPress.conditions["Press"] = {0.0, 3.9};
+    noPress.conditions["Press"] = {0.0, 3.0};
 
     // Создание решений  
-    noPress.solutions.push_back(Optimal("Запустить резервный насос → Проверить клапаны → Сбросить ошибку", 100));
-    noPress.solutions.push_back(Accept("Запустить резервный насос → Сбросить ошибку", 80));
-    noPress.solutions.push_back(Critical("Постучать по насосу → Перезапустить", 20));
-    noPress.solutions.push_back(Failure("Увеличить мощность", 0));
+    noPress.solutions.push_back(Optimal("Переключить на резервный контур", 100));
+    noPress.solutions.push_back(Accept("Проверить обратный клапан, перезапустить", 80));
+    noPress.solutions.push_back(Critical("Продуть импульсно на полной мощности", 20));
+    noPress.solutions.push_back(Failure("Временно отключить датчик давления", 0));
 
     return noPress;
 }
