@@ -32,7 +32,7 @@ void Device::applyMalfunction(const Malfunction& malfunction) {
 
             ConsoleManager::printDebug("  Parameter: " + param.name_ 
                     + ", range: [" + std::to_string(it->second.first) 
-                    + ", " + std::to_string(it->second.second) + "]" , 18);
+                    + ", " + std::to_string(it->second.second) + "]" , 20);
 
             param.currentRange_ = it->second;
         }

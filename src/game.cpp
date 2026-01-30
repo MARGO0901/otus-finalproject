@@ -20,6 +20,8 @@ Game::Game(const std::vector<std::string>& deviceNames) : currentLevel(1), total
     for (const auto& name : deviceNames) {
         devices.push_back(DeviceRegistry::create(name));
     }
+
+    ConsoleManager::setDeviceCount(devices.size());
 }
 
 
@@ -213,7 +215,10 @@ void Game::processCommand(std::string &command) {
 
 void Game::handleMenuCommand(const std::string& command) {
     if (command == "start" || command == "1") {
-        currentState = State::PLAYING;       
+        currentState = State::PLAYING;
+        ConsoleManager::savePosition();
+        ConsoleManager::printLevel(1, 0);    
+        ConsoleManager::restorePosition();   
     }
     else if (command == "exit" || command == "quit") {
         running.store(false);
@@ -293,6 +298,7 @@ void Game::runLevelInLoop(int level) {
 
         std::string msg = "Задача " + std::to_string(task + 1) + "/" + std::to_string(tasks);
         penguin.say(msg + ". Введи номер устройства для починки!");
+        penguin.setMood("neutral");
 
         for (auto& task : currentTasks) {
             if (!processSingleTask(task)) {
@@ -305,19 +311,7 @@ void Game::runLevelInLoop(int level) {
     }
 
     // Завершение уровня
-    completeLevel(level);
-    /*
-    if (currentState == State::PLAYING && running.load()) {
-        penguin.setMood("happy");
-        penguin.say("Уровень " + std::to_string(level) + " завершен! Счет: " + 
-                    std::to_string(totalScore));
-
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        
-        // Возвращаемся в меню
-        currentState = State::MENU;
-        //showMainMenu();
-    }*/
+    completeLevel();
 }
 
 
@@ -489,6 +483,9 @@ void Game::checkAndScore(CurrentTask& task) {
     penguin.say(chosen.comment);
 
     updateScore(points);
+    ConsoleManager::savePosition();
+    ConsoleManager::printLevel(currentLevel, totalScore);
+    ConsoleManager::restorePosition();
 
     // Очищаем экран с вариантами
     ConsoleManager::savePosition();
@@ -512,8 +509,23 @@ void Game::updateDeviceStatusWithTimer(std::chrono::steady_clock::time_point& la
 }
 
 
-void Game::completeLevel(int level) {
-    
+void Game::completeLevel() {
+    if (currentState == State::PLAYING && running.load()) {
+        penguin.setMood("happy");
+        penguin.say("Уровень " + std::to_string(currentLevel) + " завершен! Счет: " + 
+                    std::to_string(totalScore));
+
+        ConsoleManager::savePosition();
+        ConsoleManager::printLevel(currentLevel + 1, totalScore);
+        ConsoleManager::restorePosition();
+
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        
+        // Возвращаемся в меню
+        //currentState = State::MENU;
+        currentLevel++;
+        //showMainMenu();
+    }
 }
 
 
@@ -522,34 +534,51 @@ void Game::showDevicesStatus() {
     ConsoleManager::savePosition();
 
     // Очистка области приборов
-    ConsoleManager::clearDeviceLine();
+    //ConsoleManager::clearDeviceLine();
 
     // Показать приборы
     ConsoleManager::gotoDeviceLine();
-    ConsoleManager::print("=== Устройства ===\n");
+    std::string output;
+    output += "=== Устройства ===\n";
+
     int number = 1;
     for (auto &device : devices) {
-        std::string params;
-        std::cout <<  number << "."<< std::left << std::setw(11) << device->getName() << ":\t";
-        for(auto& [param, value] : device->getParams()) {
+
+        // Форматируем имя устройства с фиксированной шириной
+        std::string deviceLine = std::to_string(number) + ". " 
+                               + device->getName();
+        
+        // Выравнивание
+        while (deviceLine.length() < 12) {
+            deviceLine += " ";
+        }
+        deviceLine += ":\t";
+
+        auto params = device->getParams();
+        for(auto it = params.begin(); it != params.end(); ++it) {
+            auto& [param, value] = *it;
             std::string val_str = variantToString(value);
             // Создание строки
-            std::string param_str =
-                (boost::format("%s(%.0f..%.0f) = %s") % param.name_ %
-                param.optRange_.first % param.optRange_.second % val_str)
-                    .str();
+            std::string param_str = (boost::format("%s(%.0f..%.0f) = %s") 
+                % param.name_ 
+                % param.optRange_.first 
+                % param.optRange_.second 
+                % val_str)
+                .str();
             // Форматирование ширины
-            std::string str = (boost::format("%-32s") % param_str).str();
-            params += str;
+            // Если это не последний параметр - добавляем отступ
+            if (std::next(it) != params.end()) {
+                param_str = (boost::format("%-32s") % param_str).str();
+            }
+            deviceLine += param_str;
         }
-        params += "\n";
-        ConsoleManager::print(params);
+        output += deviceLine + "\n";
         number++;
     }
-    
+    ConsoleManager::print(output);
     // Восстанавление позиции курсора
     ConsoleManager::restorePosition();
-}
+} 
 
 
 std::string Game::getQualification() const {
@@ -561,6 +590,6 @@ std::string Game::getQualification() const {
 }
 
 
-void Game::updateScore(bool) {
-
+void Game::updateScore(int points) {
+    totalScore += points;
 }

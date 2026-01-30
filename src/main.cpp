@@ -1,9 +1,16 @@
 #include <game.h>
 
+#include <iostream>
+
+void setupConsoleWindow() {
+    std::cout << "\033[8;35;140t";      // высота = 40, ширина = 120
+}
+
 int main() {
 
-    Game game({"Pump", "Fan", "Compressor"});
+    setupConsoleWindow();
 
+    Game game({"Fan", "Pump","Compressor"});
     game.start();
 
     //game.runLevel(1);

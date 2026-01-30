@@ -84,14 +84,12 @@ private:
     bool getUserSolutionChoice(CurrentTask& task);
     void checkAndScore(CurrentTask& task);
     void updateDeviceStatusWithTimer(std::chrono::steady_clock::time_point& lastUpdate);
-    void completeLevel(int level);
+    void completeLevel();
 
     void showDevicesStatus();
     bool getCommand(std::string& cmd);
-    void updateScore(bool correct);
-
-    
-           
+    void updateScore(int points);
+          
     // результаты    
     std::string getQualification() const;
     int getTotalScore() const { return totalScore; }   

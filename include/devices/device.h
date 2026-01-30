@@ -12,7 +12,6 @@ using ParamValue = std::variant<double, int>;
 class Device {
 protected:
     std::string name_;
-    enum State { WORKING, BROCKEN, FIXING} state;
     std::unordered_map<DeviceParameter, ParamValue> params;
     std::vector<Malfunction> malfunctions;
     std::vector<Malfunction> activeMalfunctions;
@@ -54,7 +53,7 @@ protected:
     virtual int applySolution(const Solution& solution) = 0;
 
 public:
-    Device(const std::string & name) : name_(name), state(WORKING) {}
+    Device(const std::string & name) : name_(name) {}
     virtual ~Device() = default;
 
     // Обновить параметры
@@ -73,7 +72,6 @@ public:
         return malfunctions;  // Возврается список созданный в конструкторе
     }
     std::string getName() const { return name_; }
-    State getState() const { return state; }
     const std::unordered_map<DeviceParameter, ParamValue> &getParams() const { return params; }
 
 private:
