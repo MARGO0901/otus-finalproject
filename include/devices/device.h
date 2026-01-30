@@ -63,6 +63,7 @@ public:
 
     void clearMalfunctions() {
         activeMalfunctions.clear();
+        resetMalfunction();
     }
 
     const std::vector<Malfunction>& getActiveMalfunctions() const {

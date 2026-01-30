@@ -1,3 +1,4 @@
+#include <cmath>
 #include <devices/device.h>
 
 #include "consolemanager.h"
@@ -52,8 +53,10 @@ void Device::resetMalfunction() {
         // Возвращаем значение в середину нормального диапазона
         std::visit([&param](auto& val) -> void {
             using T = std::decay_t<decltype(val)>;
+            
             if constexpr (std::is_arithmetic_v<T>) {
                 double target = (param.optRange_.first + param.optRange_.second) / 2.0;
+                target = std::round(target * 10.0) / 10.0;
                 val = static_cast<T>(target);
             }
         }, value);

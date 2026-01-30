@@ -7,13 +7,13 @@
 class ConsoleManager{
 private:
     static std::mutex consoleMutex_;
-    inline static int deviceCount_;
+    inline static int deviceCount_ = 0;
 
-    // Константы для позиционирования
-    static const int LEVEL_LINE = 1;
-    static const int PENGUIN_LINE = 2;
-    static const int PENGUIN_FACE_LINE = 3;
-    static const int DEVICE_LINE = 7;
+    // Константы для позиционирования (считаются от 1)
+    static const int LEVEL_LINE = 2;
+    static const int PENGUIN_LINE = 3;
+    static const int PENGUIN_FACE_LINE = 4;
+    static const int DEVICE_LINE = 8;
     
     // Динамические позиции (можно вычислять)
     static int getActionLine() {
@@ -21,16 +21,15 @@ private:
     }
 
     static int getInputLine() {
-        return DEVICE_LINE + 1 + deviceCount_ + 1 + 4 + 1;        // кол-во приборов + 1 + 4 варианта ответа + 1
+        return getActionLine() + 4 + 1;        // кол-во приборов + 1 + 4 варианта ответа + 1
     }
     
     static int getDebugLine() {
-        return DEVICE_LINE + 1 + deviceCount_ + 1 + 4 + 1 + 1;    // кол-во приборов + 1 + 4 варианта ответа + 1 + строка ввода
+        return getActionLine() + 1 + 1;    // кол-во приборов + 1 + 4 варианта ответа + 1 + строка ввода
     }
 
     static void gotoxy(int x, int y) {
-        std::lock_guard<std::mutex> lock(consoleMutex_);
-        std::cout << "\033[" << (y + 1) << ";" << (x + 1) << "H" << std::flush;
+        std::cout << "\033[" << y << ";" << (x + 1) << "H" << std::flush;
     }
 
 public:
@@ -44,6 +43,12 @@ public:
 
     template<typename T>
     static void print(const T& value) {
+        std::lock_guard<std::mutex> lock(consoleMutex_);
+        std::cout << value << std::flush;
+    }
+
+    // МЕТОД для АТОМАРНОГО вывода нескольких строк
+    static void printAtomic(const std::string& value) {
         std::lock_guard<std::mutex> lock(consoleMutex_);
         std::cout << value << std::flush;
     }
@@ -64,55 +69,60 @@ public:
     }
 
     static void gotoInputLine() {
+        std::lock_guard<std::mutex> lock(consoleMutex_);
         gotoxy(2, getInputLine());
     }
 
     static void clearInputLine() {
         std::lock_guard<std::mutex> lock(consoleMutex_);
-        std::cout << "\033[" << getInputLine() + 1 << ";1H\033[2K" << std::flush;
+        std::cout << "\033[" << getInputLine() << ";1H\033[2K" << std::flush;
     }
 
     static void gotoDeviceLine() {
+        std::lock_guard<std::mutex> lock(consoleMutex_);
         gotoxy(0, DEVICE_LINE);
     }
 
     static void gotoActionLine() {
+        std::lock_guard<std::mutex> lock(consoleMutex_);
         gotoxy(0, getActionLine());
     }
 
 
     static void gotoPenguinLine() {
+        std::lock_guard<std::mutex> lock(consoleMutex_);
         gotoxy(0, PENGUIN_LINE);
     }
 
     static void gotoPenguinFaceLine() {
+        std::lock_guard<std::mutex> lock(consoleMutex_);
         gotoxy(0,PENGUIN_FACE_LINE);
     }
 
     static void clearPenguinFaceLine() {
         std::lock_guard<std::mutex> lock(consoleMutex_);
-        std::cout << "\033[" << PENGUIN_FACE_LINE + 1 << ";1H\033[2K" << std::flush;
+        std::cout << "\033[" << PENGUIN_FACE_LINE << ";1H\033[2K" << std::flush;
     }
 
     static void clearDeviceLine() {
         std::lock_guard<std::mutex> lock(consoleMutex_);
         for (int i = 0; i <= deviceCount_; ++i) {
-            std::cout << "\033[" << DEVICE_LINE + i + 1 << ";1H\033[2K" << std::flush;
+            std::cout << "\033[" << DEVICE_LINE + i << ";1H\033[2K" << std::flush;
         }
     }
 
     static void clearActionArea() {
         std::lock_guard<std::mutex> lock(consoleMutex_);
         for (int i = 0; i < 4; ++i) {
-            std::cout << "\033[" << getActionLine() + i + 1 << ";1H\033[2K" << std::flush;
+            std::cout << "\033[" << getActionLine() + i << ";1H\033[2K" << std::flush;
         }
     }
 
     static void showPrompt() {
         std::lock_guard<std::mutex> lock(consoleMutex_);
         //на позицию 
-        std::cout << "\033[" << getInputLine() + 1 << ";1H> \033[?25h" << std::flush;
-        std::cout << "\033[" << (getInputLine() + 1) << ";" << 2 << "H" << std::flush;
+        std::cout << "\033[" << getInputLine() << ";1H> \033[?25h" << std::flush;
+        std::cout << "\033[" << getInputLine() << ";3H" << std::flush;
     }
 
     static void savePosition() {
@@ -128,17 +138,25 @@ public:
     }
 
     static void printDebug(const std::string& str, int num = 19) {
-        savePosition();
-        std::cout << "\033[" << num + 1 << ";1H\033[2K" << std::flush;
+        std::lock_guard<std::mutex> lock(consoleMutex_);
+        // сохранить позицию курсора
+        std::cout << "\033[s";
+        std::cout << "\033[" << num << ";1H\033[2K" << std::flush;
         gotoxy(0, num);
-        print(str);
-        restorePosition();
+        std::cout << str << std::flush; 
+        // вернуть курсор на позицию
+        std::cout << "\033[u";
+        std::cout.flush();
     }
 
-    static void printLevel(int level, int score) {
-        gotoxy(0, LEVEL_LINE);
-        std::cout << "\033[" << LEVEL_LINE + 1 << ";1H\033[2K" << std::flush;
-        print("Уровень: " + std::to_string(level) + " Счет: " + std::to_string(score));
+    static void printLevel(int level, int score, bool printMax = false) {
+        std::lock_guard<std::mutex> lock(consoleMutex_);
+        std::cout << "\033[" << LEVEL_LINE << ";1H\033[2K" << std::flush;
+        if (!printMax) {
+            std::cout << "Уровень: " << level << " Счет: " << score << std::flush;
+        } else {
+            std::cout << "Уровень: " << level << " Счет: " << score << "/" << (level * 100) << std::flush;
+        }
     }
 
 };

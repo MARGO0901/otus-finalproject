@@ -296,9 +296,9 @@ void Game::runLevelInLoop(int level) {
         // Генерируем проблемы
         std::vector<CurrentTask> currentTasks = generateProblemsWithSolutions(problemsAtOnce);
 
+        penguin.setMood("neutral");
         std::string msg = "Задача " + std::to_string(task + 1) + "/" + std::to_string(tasks);
         penguin.say(msg + ". Введи номер устройства для починки!");
-        penguin.setMood("neutral");
 
         for (auto& task : currentTasks) {
             if (!processSingleTask(task)) {
@@ -516,7 +516,7 @@ void Game::completeLevel() {
                     std::to_string(totalScore));
 
         ConsoleManager::savePosition();
-        ConsoleManager::printLevel(currentLevel + 1, totalScore);
+        ConsoleManager::printLevel(currentLevel + 1, totalScore, true);
         ConsoleManager::restorePosition();
 
         std::this_thread::sleep_for(std::chrono::seconds(3));
