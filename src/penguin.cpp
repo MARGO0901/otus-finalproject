@@ -2,20 +2,22 @@
 #include <consolemanager.h>
 
 Penguin::Penguin() : mood("normal"), currentMessage("Привет! Введи 'start', чтобы начать") {
-    ConsoleManager::clearScreen();
+    {
+        std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+        ConsoleManager::clearScreen();
+    }
     drawPenguin();
 }
 
 
 void Penguin::drawPenguin() {
-    // Пингвин всегда рисуется с начала экрана
-    ConsoleManager::gotoPenguinLine();
-
-    ConsoleManager::print("    -\n"); 
-
     std::string emoji = "  ('v')   " + currentMessage + "\n";
-    ConsoleManager::print(emoji);
 
+    std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+
+    ConsoleManager::gotoPenguinLine();
+    ConsoleManager::print("    -\n"); 
+    ConsoleManager::print(emoji);
     ConsoleManager::print(" //   \\\\\n");
     ConsoleManager::print(" (\\_=_/)\n");
 }
@@ -23,10 +25,6 @@ void Penguin::drawPenguin() {
 
 // Обновляем только лицо и сообщение
 void Penguin::updateFace() {
-    // Перемещаемся к лицу пингвина (строка 2)
-    ConsoleManager::clearPenguinFaceLine();
-    ConsoleManager::gotoPenguinFaceLine();
-  
     std::string emoji;
     if (mood == "happy") {
         emoji = "  (^v^)   " + currentMessage;
@@ -37,6 +35,12 @@ void Penguin::updateFace() {
     } else {
         emoji = "  ('v')   " + currentMessage;
     }
+
+    std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+    // Перемещаемся к лицу пингвина (строка 2)
+    ConsoleManager::clearPenguinFaceLine();
+    ConsoleManager::gotoPenguinFaceLine();
+  
     ConsoleManager::print(emoji);
     ConsoleManager::gotoInputLine();
 }

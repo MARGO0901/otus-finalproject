@@ -22,7 +22,10 @@ void Device::applyMalfunctionEffect() {
 
 
 void Device::applyMalfunction(const Malfunction& malfunction) {
-    ConsoleManager::printDebug("Device: " + this->name_ + " Applying malfunction: " + malfunction.name);
+    {
+        std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());   
+        ConsoleManager::printDebug("Device: " + this->name_ + " Applying malfunction: " + malfunction.name);
+    }
 
     for (auto& param_value : params) {
         DeviceParameter& param = const_cast<DeviceParameter&>(param_value.first); 
@@ -31,9 +34,12 @@ void Device::applyMalfunction(const Malfunction& malfunction) {
         auto it = malfunction.conditions.find(param.name_);
         if (it != malfunction.conditions.end()) {
 
-            ConsoleManager::printDebug("  Parameter: " + param.name_ 
-                    + ", range: [" + std::to_string(it->second.first) 
-                    + ", " + std::to_string(it->second.second) + "]" , 20);
+            {
+                std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+                ConsoleManager::printDebug("  Parameter: " + param.name_ 
+                        + ", range: [" + std::to_string(it->second.first) 
+                        + ", " + std::to_string(it->second.second) + "]" , 20);
+            }
 
             param.currentRange_ = it->second;
         }
@@ -56,7 +62,12 @@ void Device::resetMalfunction() {
             
             if constexpr (std::is_arithmetic_v<T>) {
                 double target = (param.optRange_.first + param.optRange_.second) / 2.0;
-                target = std::round(target * 10.0) / 10.0;
+
+                if constexpr (std::is_integral_v<T>) {
+                    target = std::round(target);
+                } else {
+                    target = std::round(target * 10.0) / 10.0;
+                }
                 val = static_cast<T>(target);
             }
         }, value);

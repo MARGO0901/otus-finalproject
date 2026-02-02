@@ -55,6 +55,7 @@ private:
     int currentLevel;
     Penguin penguin;
     int totalScore;
+    int maxScore;                       //максимальное кол-во балов на данный момент
 
 public:
     Game(const std::vector<std::string>& deviceNames);

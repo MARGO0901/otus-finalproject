@@ -2,6 +2,7 @@
 #include <chrono>
 #include <game.h>
 
+#include <mutex>
 #include <random>
 #include <sstream>
 #include <string>
@@ -13,9 +14,7 @@
 #include <devices/deviceregistry.h>
 #include <utils.h>
 
-static std::mutex outputMutex;
-
-Game::Game(const std::vector<std::string>& deviceNames) : currentLevel(1), totalScore(0) {
+Game::Game(const std::vector<std::string>& deviceNames) : currentLevel(1), totalScore(0), maxScore(0) {
 
     for (const auto& name : deviceNames) {
         devices.push_back(DeviceRegistry::create(name));
@@ -49,6 +48,7 @@ void Game::start() {
     startCV.notify_all();
 
     // Приглашение для ввода
+    std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
     ConsoleManager::clearInputLine();
     ConsoleManager::showPrompt();   
 }
@@ -109,6 +109,7 @@ void Game::inputLoop() {
                 }
                 line.clear();
 
+                std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
                 ConsoleManager::clearInputLine();
                 ConsoleManager::showPrompt();
                 ConsoleManager::gotoInputLine();
@@ -117,11 +118,13 @@ void Game::inputLoop() {
         else if (ch == 127 || ch == 8) {  // Backspace
             if (!line.empty()) {
                 line.pop_back();
+                std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
                 ConsoleManager::print("\b \b");
             }
         }
         else if (ch >= 32 && ch <= 126) {  // Печатные символы
             line += ch;
+            std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
             ConsoleManager::print(ch);
         }
         // Игнорируем остальные символы
@@ -130,6 +133,7 @@ void Game::inputLoop() {
     // Восстанавливаем настройки
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     // Восстанавливаем видимость курсора
+    std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
     ConsoleManager::showCursor();
 }
 
@@ -214,10 +218,11 @@ void Game::processCommand(std::string &command) {
 
 
 void Game::handleMenuCommand(const std::string& command) {
-    if (command == "start" || command == "1") {
+    if (command == "start") {
         currentState = State::PLAYING;
+        std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
         ConsoleManager::savePosition();
-        ConsoleManager::printLevel(1, 0);    
+        ConsoleManager::printLevel(1, 0, maxScore);    
         ConsoleManager::restorePosition();   
     }
     else if (command == "exit" || command == "quit") {
@@ -263,6 +268,7 @@ bool Game::getCommand(std::string& cmd) {
 /*
 // === ГЛАВНОЕ МЕНЮ ===
 void Game::showMainMenu() {
+    std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
     ConsoleManager::clearScreen();
     
     // Рисуем пингвина
@@ -328,8 +334,11 @@ std::vector<CurrentTask> Game::generateProblemsWithSolutions(int count) {
             int malfunctionIndex = rand() % possibleMalfunctions.size();
             Malfunction selectedMalfunction = possibleMalfunctions[malfunctionIndex];
 
-            ConsoleManager::printDebug("deviceIndex = " + std::to_string(deviceIndex) + " malfunctionIndex=" +
+            {
+                std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+                ConsoleManager::printDebug("deviceIndex = " + std::to_string(deviceIndex) + " malfunctionIndex=" +
                 std::to_string(malfunctionIndex));
+            }
 
             // Установить неисправность в прибор
             device->addMalfunctions(selectedMalfunction);  
@@ -397,35 +406,41 @@ bool Game::askToSelectDevice(int& selectedIndex) {
                 if (!devices[num - 1]->getActiveMalfunctions().empty()) {
                     selectedIndex = num - 1;        // здесь меняется task.deviceIndex
                     return true;
+                } else {
+                    penguin.setMood("sad");
+                    penguin.say("Этот прибор исправен! Попробуй другой.");
                 }
             } else {
-                penguin.setMood("sad");
-                penguin.say("Этот прибор исправен! Попробуй другой.");
+                penguin.say("Введи номер от 1 до " + std::to_string(devices.size()));
             }
         }
-        penguin.say("Введи номер от 1 до " + std::to_string(devices.size()));
     }
     return false;
 }
 
 
-void Game::showProblemAndSolutions(const CurrentTask& task) {
+void Game::showProblemAndSolutions(const CurrentTask& task) {   
     Device* device = devices[task.deviceIndex].get();
+
+    std::string output;
+    for (size_t i = 0; i < task.shuffledSolutions.size(); i++) {
+        output += std::to_string(i+1) + ". " + task.shuffledSolutions[i].description + "\n";
+    }
 
     penguin.setMood("neutral");
     std::string msg = "Прибор: " + device->getName() + ". Неисправность: " + task.malfunction.name;
 
-    // Показываем варианты
-    ConsoleManager::savePosition();
-    ConsoleManager::gotoActionLine();
-    
-    for (size_t i = 0; i < task.shuffledSolutions.size(); i++) {
-        ConsoleManager::print(std::to_string(i+1) + ". " + 
-                            task.shuffledSolutions[i].description + "\n");
-    }
-    
-    ConsoleManager::restorePosition();
-    penguin.say(msg + ". Выбери номер действия (1-" + std::to_string(task.malfunction.solutions.size())+ "):");
+    // Показываем варианты  
+    {
+        std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+        ConsoleManager::clearActionArea();  
+        ConsoleManager::savePosition();
+        ConsoleManager::gotoActionLine();
+        ConsoleManager::print(output);
+        ConsoleManager::restorePosition();  
+    } 
+
+    penguin.say(msg + ". Выбери номер действия (1-" + std::to_string(task.malfunction.solutions.size())+ "):");   
 }
 
 
@@ -483,14 +498,16 @@ void Game::checkAndScore(CurrentTask& task) {
     penguin.say(chosen.comment);
 
     updateScore(points);
-    ConsoleManager::savePosition();
-    ConsoleManager::printLevel(currentLevel, totalScore);
-    ConsoleManager::restorePosition();
 
-    // Очищаем экран с вариантами
-    ConsoleManager::savePosition();
-    ConsoleManager::clearActionArea();
-    ConsoleManager::restorePosition();
+    {
+        std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+        ConsoleManager::savePosition();
+        ConsoleManager::printLevel(currentLevel, totalScore, maxScore);
+
+        // Очищаем экран с вариантами
+        ConsoleManager::clearActionArea();
+        ConsoleManager::restorePosition();
+    }
 
     // Снимаем неисправность с прибора
     devices[task.deviceIndex]->clearMalfunctions();
@@ -515,9 +532,13 @@ void Game::completeLevel() {
         penguin.say("Уровень " + std::to_string(currentLevel) + " завершен! Счет: " + 
                     std::to_string(totalScore));
 
-        ConsoleManager::savePosition();
-        ConsoleManager::printLevel(currentLevel + 1, totalScore, true);
-        ConsoleManager::restorePosition();
+        {
+            std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+
+            ConsoleManager::savePosition();
+            ConsoleManager::printLevel(currentLevel + 1, totalScore, maxScore);
+            ConsoleManager::restorePosition();
+        }
 
         std::this_thread::sleep_for(std::chrono::seconds(3));
         
@@ -529,12 +550,13 @@ void Game::completeLevel() {
 }
 
 
-void Game::showDevicesStatus() {    
+void Game::showDevicesStatus() {   
+    std::lock_guard<std::mutex> lock(ConsoleManager::getMutex()); 
     // Сохранение позиции курсора
     ConsoleManager::savePosition();
 
     // Очистка области приборов
-    //ConsoleManager::clearDeviceLine();
+    ConsoleManager::clearDeviceLine();
 
     // Показать приборы
     ConsoleManager::gotoDeviceLine();
@@ -592,4 +614,5 @@ std::string Game::getQualification() const {
 
 void Game::updateScore(int points) {
     totalScore += points;
+    maxScore += 100;
 }
