@@ -1,5 +1,7 @@
 #include "malfunction.h"
+#include <algorithm>
 #include <chrono>
+#include <cstddef>
 #include <game.h>
 
 #include <mutex>
@@ -14,7 +16,7 @@
 #include <devices/deviceregistry.h>
 #include <utils.h>
 
-Game::Game(const std::vector<std::string>& deviceNames) : currentLevel(1), totalScore(0), maxScore(0) {
+Game::Game(const std::vector<std::string>& deviceNames) : currentLevel(0), totalScore(0), maxScore(0) {
 
     for (const auto& name : deviceNames) {
         devices.push_back(DeviceRegistry::create(name));
@@ -165,9 +167,6 @@ void Game::mainGameLoop() {
                 levelInProgress = true;
                 runLevelInLoop(currentLevel);
                 levelInProgress = false;
-
-                currentState = State::MENU;
-                //showMainMenu();
             }
         }
             
@@ -219,6 +218,10 @@ void Game::processCommand(std::string &command) {
 
 void Game::handleMenuCommand(const std::string& command) {
     if (command == "start") {
+        totalScore = 0;
+        maxScore = 0;
+        currentLevel = 1;
+
         currentState = State::PLAYING;
         std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
         ConsoleManager::savePosition();
@@ -294,7 +297,14 @@ void Game::showMainMenu() {
 
 
 void Game::runLevelInLoop(int level) {
-    int tasks = (level == 1) ? 3 : (level == 2) ? 6 : 9;
+    {
+        std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+        ConsoleManager::savePosition();
+        ConsoleManager::printLevel(currentLevel, totalScore, maxScore);
+        ConsoleManager::restorePosition();
+    }
+
+    int tasks = 3;
     int problemsAtOnce = level;
 
     for (int task = 0; task < tasks && currentState == State::PLAYING && running.load(); task++) {
@@ -304,16 +314,68 @@ void Game::runLevelInLoop(int level) {
 
         penguin.setMood("neutral");
         std::string msg = "Задача " + std::to_string(task + 1) + "/" + std::to_string(tasks);
-        penguin.say(msg + ". Введи номер устройства для починки!");
+        if (currentLevel == 1 ) {
+            penguin.say(msg + ". Неисправен 1 прибор. Введи номер прибора");
+        } else {
+            penguin.say(msg + ". Неисправено " + std::to_string(currentLevel) + " приборa. Введи номер прибора");
+        }
 
-        for (auto& task : currentTasks) {
-            if (!processSingleTask(task)) {
+        ConsoleManager::hideCursor();
+        if (running) std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+        ConsoleManager::showCursor();
+
+        // Обработка задач по одной, пока все не будут исправлены
+        while(!currentTasks.empty() && running && currentState == State::PLAYING) {
+            int selectedIndex;
+            if (!askToSelectDevice(selectedIndex)) {
                 return;
+            }
+
+            auto it = std::find_if(currentTasks.begin(), currentTasks.end(), 
+                [selectedIndex](const CurrentTask& t) {
+                return t.deviceIndex == selectedIndex;
+            });
+
+            if (it != currentTasks.end()) {
+                CurrentTask& task = *it;
+
+                // Показать неисправность и варианты решений
+                showProblemAndSolutions(task);
+
+                // Получить выбор пользователя
+                if (!getUserSolutionChoice(task)) {
+                    return;
+                }
+
+                // Проверить и начислить очки
+                checkAndScore(task);
+
+                currentTasks.erase(it);
+
+                // Убрать неисправность из прибора
+                devices[selectedIndex]->clearMalfunctions();
+
+                if (!currentTasks.empty()) {
+                    penguin.setMood("neutral");
+                    penguin.say("Хорошо! Но остались другие неисправные приборы. Введи номер прибора");
+                    ConsoleManager::hideCursor();
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+                    ConsoleManager::showCursor();
+                }               
+            } else {
+                // Этот прибор не был в списке неисправных
+                penguin.setMood("sad");
+                penguin.say("Этот прибор исправен! Попробуй другой.");
+                ConsoleManager::hideCursor();
+                std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+                ConsoleManager::showCursor();
             }
         }
 
         // Пауза между задачами
-        if (running) std::this_thread::sleep_for(std::chrono::seconds(1));
+        ConsoleManager::hideCursor();
+        if (running) std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        ConsoleManager::showCursor();
     }
 
     // Завершение уровня
@@ -324,9 +386,19 @@ void Game::runLevelInLoop(int level) {
 std::vector<CurrentTask> Game::generateProblemsWithSolutions(int count) {
     std::vector<CurrentTask> tasks;
 
-    for (int i = 0; i < count; i++) {
-        // Выбираем случайный прибор
-        int deviceIndex = rand() % devices.size();
+    // Создание списка индексов приборов
+    std::vector<int> deviceInd;
+    for (std::size_t i = 0; i < devices.size(); ++i) {
+        deviceInd.push_back(i);
+    }
+
+    // Перемешивание индексов
+    std::shuffle(deviceInd.begin(), deviceInd.end(), std::mt19937(std::random_device{}()));
+
+
+    for (int i = 0; i < std::min(count, (int)deviceInd.size()); i++) {
+        // Выбор случайного прибора
+        int deviceIndex = deviceInd[i];
         Device* device = devices[deviceIndex].get();
 
         auto possibleMalfunctions = device->getMalfunctions();
@@ -340,7 +412,7 @@ std::vector<CurrentTask> Game::generateProblemsWithSolutions(int count) {
                 std::to_string(malfunctionIndex));
             }
 
-            // Установить неисправность в прибор
+            // Установка неисправность в прибор
             device->addMalfunctions(selectedMalfunction);  
             
             // Создание задачи с перемешанными решениями
@@ -357,27 +429,6 @@ std::vector<CurrentTask> Game::generateProblemsWithSolutions(int count) {
     }
 
     return tasks;
-}
-
-
-bool Game::processSingleTask(CurrentTask& task) {
-    // 1. Показать приборы и просит выбрать
-    if (!askToSelectDevice(task.deviceIndex)) {
-        return false;
-    }
-
-    // 2. Показать неисправность и варианты решений
-    showProblemAndSolutions(task);
-
-    // 3. Получить выбор пользователя
-    if (!getUserSolutionChoice(task)) {
-        return false;
-    }
-
-    // 4. Проверить и начислить очки
-    checkAndScore(task);
-
-    return true;
 }
 
 
@@ -402,14 +453,9 @@ bool Game::askToSelectDevice(int& selectedIndex) {
 
         int num;
         if(std::istringstream(input) >> num) {
-            if (num >=1 && num <= devices.size()) {
-                if (!devices[num - 1]->getActiveMalfunctions().empty()) {
-                    selectedIndex = num - 1;        // здесь меняется task.deviceIndex
-                    return true;
-                } else {
-                    penguin.setMood("sad");
-                    penguin.say("Этот прибор исправен! Попробуй другой.");
-                }
+            if (num >= 1 && num <= devices.size()) {
+                selectedIndex = num - 1;
+                return true;
             } else {
                 penguin.say("Введи номер от 1 до " + std::to_string(devices.size()));
             }
@@ -508,9 +554,6 @@ void Game::checkAndScore(CurrentTask& task) {
         ConsoleManager::clearActionArea();
         ConsoleManager::restorePosition();
     }
-
-    // Снимаем неисправность с прибора
-    devices[task.deviceIndex]->clearMalfunctions();
     
     // Пауза для чтения
     std::this_thread::sleep_for(std::chrono::milliseconds(1500));
@@ -532,20 +575,24 @@ void Game::completeLevel() {
         penguin.say("Уровень " + std::to_string(currentLevel) + " завершен! Счет: " + 
                     std::to_string(totalScore));
 
-        {
-            std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+        ConsoleManager::hideCursor();
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        ConsoleManager::showCursor();
 
-            ConsoleManager::savePosition();
-            ConsoleManager::printLevel(currentLevel + 1, totalScore, maxScore);
-            ConsoleManager::restorePosition();
+        if (currentLevel == 3) {
+            penguin.setMood("happy");
+            penguin.say("Игра завершена! Твоя кваллификация: " + getQualification());
+            currentState = State::MENU;
+            return;
         }
 
-        std::this_thread::sleep_for(std::chrono::seconds(3));
-        
-        // Возвращаемся в меню
-        //currentState = State::MENU;
-        currentLevel++;
-        //showMainMenu();
+        if ((double)totalScore/maxScore > 0.5) {
+            currentLevel++;
+        } else {
+            currentState = State::MENU;
+            penguin.setMood("sad");
+            penguin.say("Игра завершена. Ты не набрал достаточно очков для перехода на следующий уровень");
+        }
     }
 }
 
@@ -604,10 +651,10 @@ void Game::showDevicesStatus() {
 
 
 std::string Game::getQualification() const {
-    if(totalScore >= 1500) return "expert";
-    if(totalScore >= 1200) return "specialist";
-    if(totalScore >= 900) return "operator";
-    if(totalScore >= 600) return "improver";
+    if(totalScore >= 1600) return "expert";
+    if(totalScore >= 1400) return "specialist";
+    if(totalScore >= 1200) return "operator";
+    if(totalScore >= 1000) return "improver";
     return "student";
 }
 

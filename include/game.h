@@ -54,8 +54,9 @@ private:
     // игровые данные
     int currentLevel;
     Penguin penguin;
-    int totalScore;
-    int maxScore;                       //максимальное кол-во балов на данный момент
+    int totalScore;                     // общий балл за игру
+    int maxScore;                  // максимальное кол-во баллов на данный момент
+
 
 public:
     Game(const std::vector<std::string>& deviceNames);
@@ -79,7 +80,6 @@ private:
     //void showMainMenu();
     void runLevelInLoop(int level);
     std::vector<CurrentTask> generateProblemsWithSolutions(int count);
-    bool processSingleTask(CurrentTask& task);
     bool askToSelectDevice(int& selectedIndex);
     void showProblemAndSolutions(const CurrentTask& task);
     bool getUserSolutionChoice(CurrentTask& task);
@@ -93,5 +93,4 @@ private:
           
     // результаты    
     std::string getQualification() const;
-    int getTotalScore() const { return totalScore; }   
 };
