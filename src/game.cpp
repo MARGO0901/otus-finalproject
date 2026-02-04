@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <game.h>
 
+#include <memory>
 #include <mutex>
 #include <random>
 #include <sstream>
@@ -21,6 +22,9 @@ Game::Game(const std::vector<std::string>& deviceNames) : currentLevel(0), total
     for (const auto& name : deviceNames) {
         devices.push_back(DeviceRegistry::create(name));
     }
+
+    penguin_ = std::make_shared<Penguin>();
+    observerManager_.addObserver(penguin_);    
 
     ConsoleManager::setDeviceCount(devices.size());
 }
@@ -232,10 +236,10 @@ void Game::handleMenuCommand(const std::string& command) {
         running.store(false);
     }
     else if (command == "help") {
-        penguin.say("Доступные команды: start, exit");
+        observerManager_.notifyMessage("Доступные команды: start, exit");
     }
     else {
-        penguin.say("Неизвестная команда. Введи 'start' для начала игры");
+        observerManager_.notifyMessage("Неизвестная команда. Введи 'start' для начала игры");
     }
 }
 
@@ -312,12 +316,13 @@ void Game::runLevelInLoop(int level) {
         // Генерируем проблемы
         std::vector<CurrentTask> currentTasks = generateProblemsWithSolutions(problemsAtOnce);
 
-        penguin.setMood("neutral");
+        observerManager_.notifyMood("neutral");
         std::string msg = "Задача " + std::to_string(task + 1) + "/" + std::to_string(tasks);
         if (currentLevel == 1 ) {
-            penguin.say(msg + ". Неисправен 1 прибор. Введи номер прибора");
+            observerManager_.notifyMessage(msg + ". Неисправен 1 прибор. Введи номер прибора");
         } else {
-            penguin.say(msg + ". Неисправено " + std::to_string(currentLevel) + " приборa. Введи номер прибора");
+            observerManager_.notifyMessage(msg + ". Неисправено " + std::to_string(currentLevel) 
+                + " приборa. Введи номер прибора");
         }
 
         ConsoleManager::hideCursor();
@@ -356,16 +361,16 @@ void Game::runLevelInLoop(int level) {
                 devices[selectedIndex]->clearMalfunctions();
 
                 if (!currentTasks.empty()) {
-                    penguin.setMood("neutral");
-                    penguin.say("Хорошо! Но остались другие неисправные приборы. Введи номер прибора");
+                    observerManager_.notifyMood("neutral");
+                    observerManager_.notifyMessage("Хорошо! Но остались другие неисправные приборы. Введи номер прибора");
                     ConsoleManager::hideCursor();
                     std::this_thread::sleep_for(std::chrono::milliseconds(1500));
                     ConsoleManager::showCursor();
                 }               
             } else {
                 // Этот прибор не был в списке неисправных
-                penguin.setMood("sad");
-                penguin.say("Этот прибор исправен! Попробуй другой.");
+                observerManager_.notifyMood("sad");
+                observerManager_.notifyMessage("Этот прибор исправен! Попробуй другой.");
                 ConsoleManager::hideCursor();
                 std::this_thread::sleep_for(std::chrono::milliseconds(1500));
                 ConsoleManager::showCursor();
@@ -457,7 +462,7 @@ bool Game::askToSelectDevice(int& selectedIndex) {
                 selectedIndex = num - 1;
                 return true;
             } else {
-                penguin.say("Введи номер от 1 до " + std::to_string(devices.size()));
+                observerManager_.notifyMessage("Введи номер от 1 до " + std::to_string(devices.size()));
             }
         }
     }
@@ -473,7 +478,7 @@ void Game::showProblemAndSolutions(const CurrentTask& task) {
         output += std::to_string(i+1) + ". " + task.shuffledSolutions[i].description + "\n";
     }
 
-    penguin.setMood("neutral");
+    observerManager_.notifyMood("neutral");
     std::string msg = "Прибор: " + device->getName() + ". Неисправность: " + task.malfunction.name;
 
     // Показываем варианты  
@@ -486,7 +491,8 @@ void Game::showProblemAndSolutions(const CurrentTask& task) {
         ConsoleManager::restorePosition();  
     } 
 
-    penguin.say(msg + ". Выбери номер действия (1-" + std::to_string(task.malfunction.solutions.size())+ "):");   
+    observerManager_.notifyMessage(msg + ". Выбери номер действия (1-" + 
+        std::to_string(task.malfunction.solutions.size())+ "):");   
 }
 
 
@@ -515,7 +521,7 @@ bool Game::getUserSolutionChoice(CurrentTask& task) {
                 task.selectedSolutionIndex = choice - 1;
                 return true;
             }
-            penguin.say("Введи номер от 1 до " + std::to_string(task.shuffledSolutions.size()));
+            observerManager_.notifyMessage("Введи номер от 1 до " + std::to_string(task.shuffledSolutions.size()));
         }
     }
     return false;
@@ -533,15 +539,15 @@ void Game::checkAndScore(CurrentTask& task) {
 
     // Реакция в зависимости от очков
     if (points == 100) {
-        penguin.setMood("happy");
+        observerManager_.notifyMood("happy");
     } else if (points >= 60) {
-        penguin.setMood("neutral");
+        observerManager_.notifyMood("neutral");
     } else if (points >= 20) {
-        penguin.setMood("sad");
+        observerManager_.notifyMood("sad");
     } else {
-        penguin.setMood("angry");
+        observerManager_.notifyMood("angry");
     }
-    penguin.say(chosen.comment);
+    observerManager_.notifyMessage(chosen.comment);
 
     updateScore(points);
 
@@ -571,8 +577,8 @@ void Game::updateDeviceStatusWithTimer(std::chrono::steady_clock::time_point& la
 
 void Game::completeLevel() {
     if (currentState == State::PLAYING && running.load()) {
-        penguin.setMood("happy");
-        penguin.say("Уровень " + std::to_string(currentLevel) + " завершен! Счет: " + 
+        observerManager_.notifyMood("happy");
+        observerManager_.notifyMessage("Уровень " + std::to_string(currentLevel) + " завершен! Счет: " + 
                     std::to_string(totalScore));
 
         ConsoleManager::hideCursor();
@@ -580,8 +586,8 @@ void Game::completeLevel() {
         ConsoleManager::showCursor();
 
         if (currentLevel == 3) {
-            penguin.setMood("happy");
-            penguin.say("Игра завершена! Твоя кваллификация: " + getQualification());
+            observerManager_.notifyMood("happy");
+            observerManager_.notifyMessage("Игра завершена! Твоя кваллификация: " + getQualification());
             currentState = State::MENU;
             return;
         }
@@ -590,8 +596,8 @@ void Game::completeLevel() {
             currentLevel++;
         } else {
             currentState = State::MENU;
-            penguin.setMood("sad");
-            penguin.say("Игра завершена. Ты не набрал достаточно очков для перехода на следующий уровень");
+            observerManager_.notifyMood("sad");
+            observerManager_.notifyMessage("Игра завершена. Ты не набрал достаточно очков для перехода на следующий уровень");
         }
     }
 }

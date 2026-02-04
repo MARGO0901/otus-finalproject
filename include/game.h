@@ -8,8 +8,9 @@
 #include <vector>
 
 #include "malfunction.h"
-#include "penguin.h"
+#include "./observers/penguin.h"
 #include "./devices/device.h"
+#include "observers/observer.h"
 
 struct CurrentTask {
     int deviceIndex;
@@ -53,10 +54,12 @@ private:
 
     // игровые данные
     int currentLevel;
-    Penguin penguin;
     int totalScore;                     // общий балл за игру
     int maxScore;                  // максимальное кол-во баллов на данный момент
 
+    // наблюдатели
+    ObserverManager observerManager_;
+    std::shared_ptr<Penguin> penguin_;
 
 public:
     Game(const std::vector<std::string>& deviceNames);

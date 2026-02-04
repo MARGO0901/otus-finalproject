@@ -19,7 +19,8 @@ target_sources(penguin PRIVATE
     src/main.cpp 
     src/game.cpp 
     src/malfunction.cpp 
-    src/penguin.cpp 
+    src/observers/penguin.cpp 
+    src/observers/observer.cpp
     src/devices/device.cpp
     src/devices/fan.cpp 
     src/devices/pump.cpp

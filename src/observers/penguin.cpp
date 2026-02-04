@@ -1,4 +1,4 @@
-#include <penguin.h>
+#include <observers/penguin.h>
 #include <consolemanager.h>
 
 Penguin::Penguin() : mood("normal"), currentMessage("Привет! Введи 'start', чтобы начать") {
@@ -46,7 +46,7 @@ void Penguin::updateFace() {
 }
 
 
-void Penguin::say(const std::string &message)
+void Penguin::displayMessage(const std::string &message)
 {
     currentMessage = message;
     updateFace();
