@@ -65,8 +65,9 @@ public:
     Game(const std::vector<std::string>& deviceNames);
     ~Game();
 
-    void start();
-    void stop();
+    void startGame();
+    void exitGame();
+    bool isRunning() const;
 
 private:
     // потоки
@@ -88,11 +89,15 @@ private:
     bool getUserSolutionChoice(CurrentTask& task);
     void checkAndScore(CurrentTask& task);
     void updateDeviceStatusWithTimer(std::chrono::steady_clock::time_point& lastUpdate);
-    void completeLevel();
 
+    void clearDeviceMalfunctions();
     void showDevicesStatus();
+
     bool getCommand(std::string& cmd);
+
     void updateScore(int points);
+    void completeLevel();
+    void stopGame(const std::string& mood, const std::string& msg);
           
     // результаты    
     std::string getQualification() const;

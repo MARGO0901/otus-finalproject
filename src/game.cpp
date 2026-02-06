@@ -1,5 +1,6 @@
 #include "malfunction.h"
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cstddef>
 #include <game.h>
@@ -23,6 +24,12 @@ Game::Game(const std::vector<std::string>& deviceNames) : currentLevel(0), total
         devices.push_back(DeviceRegistry::create(name));
     }
 
+    {
+        std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+        ConsoleManager::clearScreen();
+        ConsoleManager::printMenu();
+    }
+
     penguin_ = std::make_shared<Penguin>();
     observerManager_.addObserver(penguin_);    
 
@@ -31,17 +38,17 @@ Game::Game(const std::vector<std::string>& deviceNames) : currentLevel(0), total
 
 
 Game::~Game() {
-    stop();
+    // exitGame();
 
-    if (inputThread.joinable()) {
-        inputThread.join();
-    }
-    // Восстанавливаем видимость курсора
-    std::cout << "\033[?25h\033[0m" << std::flush;
+    // if (inputThread.joinable()) {
+    //     inputThread.join();
+    // }
+    // // Восстанавливаем видимость курсора
+    // std::cout << "\033[?25h\033[0m" << std::flush;
 }
 
 
-void Game::start() {
+void Game::startGame() {
     //showMainMenu();
     running.store(true, std::memory_order_release);
         
@@ -53,6 +60,11 @@ void Game::start() {
 
     startCV.notify_all();
 
+    // Отсоединяем потоки - они завершатся самостоятельно
+    inputThread.detach();
+    mainThread.detach();
+    deviceThread.detach();
+
     // Приглашение для ввода
     std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
     ConsoleManager::clearInputLine();
@@ -60,13 +72,17 @@ void Game::start() {
 }
 
 
-void Game::stop() {
+void Game::exitGame() {  
     running.store(false, std::memory_order_release);
     startCV.notify_all();
 
-    if (inputThread.joinable()) inputThread.join();
-    if (deviceThread.joinable()) deviceThread.join();
-    if (mainThread.joinable()) mainThread.join();
+    std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+    ConsoleManager::gotoExitLine();
+}
+
+
+bool Game::isRunning() const {
+    return running.load(std::memory_order_acquire);
 }
 
 
@@ -88,14 +104,14 @@ void Game::inputLoop() {
 
     // установить неканонический режим
     newt.c_lflag &= ~(ICANON | ECHO);  
-    newt.c_cc[VMIN] = 1;    //минимальное кол-во символов
+    newt.c_cc[VMIN] = 0;    //минимальное кол-во символов
     newt.c_cc[VTIME] = 0;   //таймаут 0
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
     std::string line;
             
     // считывать символы по одному
-    while (this->running.load(std::memory_order_acquire)) {
+    while (running.load(std::memory_order_acquire)) {
 
         char ch;
 
@@ -134,13 +150,12 @@ void Game::inputLoop() {
             ConsoleManager::print(ch);
         }
         // Игнорируем остальные символы
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
     
     // Восстанавливаем настройки
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    // Восстанавливаем видимость курсора
-    std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
-    ConsoleManager::showCursor();
 }
 
 
@@ -186,7 +201,7 @@ void Game::deviceUpdateLoop() {
         startCV.wait(lock, [this]() { return running.load(); });
     }
 
-    while (running.load()) {
+    while (running.load(std::memory_order_acquire)) {
         {
             std::lock_guard<std::mutex> lock(deviceMutex);
             std::for_each(devices.begin(), devices.end(),[] (auto& device) {
@@ -232,11 +247,11 @@ void Game::handleMenuCommand(const std::string& command) {
         ConsoleManager::printLevel(1, 0, maxScore);    
         ConsoleManager::restorePosition();   
     }
-    else if (command == "exit" || command == "quit") {
-        running.store(false);
+    else if (command == "exit") {
+        exitGame();
     }
-    else if (command == "help") {
-        observerManager_.notifyMessage("Доступные команды: start, exit");
+    else if (command == "stop") {
+        observerManager_.notifyMessage("Введи 'start' для начала игры");
     }
     else {
         observerManager_.notifyMessage("Неизвестная команда. Введи 'start' для начала игры");
@@ -250,7 +265,7 @@ void Game::handleGameCommand(const std::string& command) {
         //showMainMenu();
     }
     else if (command == "exit") {
-        running.store(false);
+        exitGame();
     }
     else {
         // Обработка игрового ввода
@@ -447,12 +462,15 @@ bool Game::askToSelectDevice(int& selectedIndex) {
         std::string input;
         if (!getCommand(input)) continue;
 
-        if (input == "menu") {
-            currentState = State::MENU;
+        if (input == "stop") {
+            clearDeviceMalfunctions();
+            std::string msg = "Принудительное завершение игры. Счет " + std::to_string(totalScore) 
+                + "/" + std::to_string(maxScore);
+            stopGame("sad", msg);
             return false;
         }
         if (input == "exit") {
-            running = false;
+            exitGame();
             return false;
         }
 
@@ -506,12 +524,15 @@ bool Game::getUserSolutionChoice(CurrentTask& task) {
         std::string input;
         if (!getCommand(input)) continue;
         
-        if (input == "menu") {
-            currentState = State::MENU;
+        if (input == "stop") {
+            clearDeviceMalfunctions();
+            std::string msg = "Принудительное завершение игры. Счет " + std::to_string(totalScore) 
+                + "/" + std::to_string(maxScore);
+            stopGame("sad", msg);
             return false;
         }
         if (input == "exit") {
-            running = false;
+            exitGame();
             return false;
         }
 
@@ -586,18 +607,16 @@ void Game::completeLevel() {
         ConsoleManager::showCursor();
 
         if (currentLevel == 3) {
-            observerManager_.notifyMood("happy");
-            observerManager_.notifyMessage("Игра завершена! Твоя кваллификация: " + getQualification());
-            currentState = State::MENU;
+            std::string msg = "Игра завершена! Твоя кваллификация: " + getQualification();
+            stopGame("happy", msg);
             return;
         }
 
         if ((double)totalScore/maxScore > 0.5) {
             currentLevel++;
         } else {
-            currentState = State::MENU;
-            observerManager_.notifyMood("sad");
-            observerManager_.notifyMessage("Игра завершена. Ты не набрал достаточно очков для перехода на следующий уровень");
+            std::string msg = "Игра завершена. Ты не набрал достаточно очков для перехода на следующий уровень";
+            stopGame("sad", msg);
         }
     }
 }
@@ -656,6 +675,13 @@ void Game::showDevicesStatus() {
 } 
 
 
+void Game::clearDeviceMalfunctions() {
+    for (auto& device : devices) {
+        device->clearMalfunctions();
+    }
+}
+
+
 std::string Game::getQualification() const {
     if(totalScore >= 1600) return "expert";
     if(totalScore >= 1400) return "specialist";
@@ -668,4 +694,18 @@ std::string Game::getQualification() const {
 void Game::updateScore(int points) {
     totalScore += points;
     maxScore += 100;
+}
+
+void Game::stopGame(const std::string& mood, const std::string& msg) {
+    currentState = State::MENU;
+    clearDeviceMalfunctions();
+
+    observerManager_.notifyMood(mood);
+    observerManager_.notifyMessage(msg);
+    
+    std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+    ConsoleManager::savePosition();
+    ConsoleManager::clearLevelLine();
+    ConsoleManager::clearActionArea();
+    ConsoleManager::restorePosition();
 }

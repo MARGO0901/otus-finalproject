@@ -2,10 +2,6 @@
 #include <consolemanager.h>
 
 Penguin::Penguin() : mood("normal"), currentMessage("Привет! Введи 'start', чтобы начать") {
-    {
-        std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
-        ConsoleManager::clearScreen();
-    }
     drawPenguin();
 }
 

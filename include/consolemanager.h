@@ -10,10 +10,11 @@ private:
     inline static int deviceCount_ = 0;
 
     // Константы для позиционирования (считаются от 1)
-    static const int LEVEL_LINE = 2;
-    static const int PENGUIN_LINE = 3;
-    static const int PENGUIN_FACE_LINE = 4;
-    static const int DEVICE_LINE = 8;
+    static const int MENU_LINE = 2;
+    static const int LEVEL_LINE = 3;
+    static const int PENGUIN_LINE = 4;
+    static const int PENGUIN_FACE_LINE = 5;
+    static const int DEVICE_LINE = 9;
     
     // Динамические позиции (можно вычислять)
     static int getActionLine() {
@@ -49,6 +50,11 @@ public:
         std::cout << value << std::flush;
     }
 
+    static void printMenu() {
+        std::cout << "\033[" << MENU_LINE << ";1H\033[2K" << std::flush;
+        std::cout << "Команды: 'start' - начать игру, 'stop' - остановить игру, 'exit' - выйти из игры" << std::flush;
+    }
+
     static void clearScreen() {
         std::cout << "\033[2J\033[H" << std::flush;
     }
@@ -67,6 +73,10 @@ public:
 
     static void clearInputLine() {
         std::cout << "\033[" << getInputLine() << ";1H\033[2K" << std::flush;
+    }
+
+    static void clearLevelLine() {
+        std::cout << "\033[" << LEVEL_LINE << ";1H\033[2K" << std::flush;
     }
 
     static void gotoDeviceLine() {
@@ -118,7 +128,7 @@ public:
         std::cout.flush();
     }
 
-    static void printDebug(const std::string& str, int num = 19) {
+    static void printDebug(const std::string& str, int num = 20) {
         // сохранить позицию курсора
         std::cout << "\033[s";
         std::cout << "\033[" << num << ";1H\033[2K" << std::flush;
@@ -132,6 +142,10 @@ public:
     static void printLevel(int level, int score, int max) {
         std::cout << "\033[" << LEVEL_LINE << ";1H\033[2K" << std::flush;
         std::cout << "Уровень: " << level << " Счет: " << score << "/" << max << std::flush;
+    }
+
+    static void gotoExitLine() {
+        std::cout << "\033[" << getInputLine() + 1 << ";1H\033[2K" << std::flush;
     }
 
 };

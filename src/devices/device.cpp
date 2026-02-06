@@ -38,7 +38,7 @@ void Device::applyMalfunction(const Malfunction& malfunction) {
                 std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
                 ConsoleManager::printDebug("  Parameter: " + param.name_ 
                         + ", range: [" + std::to_string(it->second.first) 
-                        + ", " + std::to_string(it->second.second) + "]" , 20);
+                        + ", " + std::to_string(it->second.second) + "]" , 21);
             }
 
             param.currentRange_ = it->second;
