@@ -1,8 +1,9 @@
 #include <observers/penguin.h>
 #include <consolemanager.h>
 
-Penguin::Penguin() : mood("normal"), currentMessage("Привет! Введи 'start', чтобы начать") {
-    drawPenguin();
+Penguin::Penguin(bool is_drawing) : mood("normal"), currentMessage("Привет! Введи 'start', чтобы начать") {
+    if (is_drawing)
+        drawPenguin();
 }
 
 

@@ -37,19 +37,7 @@ Game::Game(const std::vector<std::string>& deviceNames) : currentLevel(0), total
 }
 
 
-Game::~Game() {
-    // exitGame();
-
-    // if (inputThread.joinable()) {
-    //     inputThread.join();
-    // }
-    // // Восстанавливаем видимость курсора
-    // std::cout << "\033[?25h\033[0m" << std::flush;
-}
-
-
 void Game::startGame() {
-    //showMainMenu();
     running.store(true, std::memory_order_release);
         
     inputThread = std::thread(&Game::inputLoop, this);
@@ -74,7 +62,13 @@ void Game::startGame() {
 
 void Game::exitGame() {  
     running.store(false, std::memory_order_release);
-    startCV.notify_all();
+
+    if (inputThread.joinable()) {
+        inputThread.join();
+    }
+    if (deviceThread.joinable()) {
+        deviceThread.join();
+    }
 
     std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
     ConsoleManager::gotoExitLine();
@@ -262,7 +256,6 @@ void Game::handleMenuCommand(const std::string& command) {
 void Game::handleGameCommand(const std::string& command) {
     if (command == "menu") {
         currentState = State::MENU;
-        //showMainMenu();
     }
     else if (command == "exit") {
         exitGame();
@@ -285,34 +278,6 @@ bool Game::getCommand(std::string& cmd) {
     }
     return false;
 }
-
-
-/*
-// === ГЛАВНОЕ МЕНЮ ===
-void Game::showMainMenu() {
-    std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
-    ConsoleManager::clearScreen();
-    
-    // Рисуем пингвина
-    penguin.draw();
-    
-    // Меню
-    ConsoleManager::gotoxy(0, 6);
-    std::cout << "========== ГЛАВНОЕ МЕНЮ ==========\n";
-    std::cout << "1. Начать игру (start)\n";
-    std::cout << "2. Помощь (help)\n";
-    std::cout << "3. Выход (exit)\n";
-    std::cout << "==================================\n";
-    
-    if (totalScore > 0) {
-        std::cout << "\nТекущий счет: " << totalScore << "\n";
-    }
-    
-    // Приглашение для ввода
-    ConsoleManager::clearInputLine(11);
-    ConsoleManager::showPrompt(11);
-    ConsoleManager::gotoxy(2, 11);
-}*/
 
 
 void Game::runLevelInLoop(int level) {

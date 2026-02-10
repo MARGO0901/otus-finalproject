@@ -8,8 +8,8 @@
 #include <vector>
 
 #include "malfunction.h"
-#include "./observers/penguin.h"
-#include "./devices/device.h"
+#include "observers/penguin.h"
+#include "devices/device.h"
 #include "observers/observer.h"
 
 struct CurrentTask {
@@ -63,7 +63,6 @@ private:
 
 public:
     Game(const std::vector<std::string>& deviceNames);
-    ~Game();
 
     void startGame();
     void exitGame();
@@ -81,7 +80,6 @@ private:
     void handleGameCommand(const std::string& command);
 
     // игровая логика
-    //void showMainMenu();
     void runLevelInLoop(int level);
     std::vector<CurrentTask> generateProblemsWithSolutions(int count);
     bool askToSelectDevice(int& selectedIndex);
