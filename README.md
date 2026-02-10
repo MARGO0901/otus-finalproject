@@ -66,7 +66,7 @@ Real-time обновление: Отображение параметров пр
 2. Установить:
 `sudo dpkg -i penguin-0.0.38-Linux.deb`
 3. Найти программу
-`dpkg -L penguin-0.0.38-Linux | grep bin`
+`dpkg -L penguin | grep bin`
 4. Запустить:
 `penguin`
 5. Удалить:
