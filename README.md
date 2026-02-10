@@ -59,3 +59,16 @@ Real-time обновление: Отображение параметров пр
  - 'boost::test' - фреймворк для модульного тестирования
 
 **Диаграмма** [diagram.drawio](diagram.drawio)
+
+## Установка и удаление
+1. Скачать deb-пакет:
+'wget *ссылка*'
+2. Установить:
+'sudo dpkg -i penguin-0.0.38-Linux.deb'
+3. Найти программу
+'dpkg -L penguin-0.0.38-Linux | grep bin'
+4. Запустить:
+'penguin'
+5. Удалить:
+'sudo dpkg -r penguin'
+
