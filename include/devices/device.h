@@ -12,9 +12,9 @@ using ParamValue = std::variant<double, int>;
 class Device {
 protected:
     std::string name_;
-    std::unordered_map<DeviceParameter, ParamValue> params;
-    std::vector<Malfunction> malfunctions;
-    std::vector<Malfunction> activeMalfunctions;
+    std::unordered_map<DeviceParameter, ParamValue> params_;
+    std::vector<Malfunction> malfunctions_;
+    std::vector<Malfunction> activeMalfunctions_;
 
     template<typename T>
     void optChangeParam(const DeviceParameter &param, T &value) {
@@ -36,7 +36,7 @@ protected:
     // Метод для изменения параметров
     template<typename T>
     bool setParamValue(const std::string& name, T &newValue) {
-        for (auto& [param, value] : params) {
+        for (auto& [param, value] : params_) {
             if(param.name_ == name) {
                 if(auto* ptr = std::get_if<T>(&value)) {
                     *ptr = newValue;
@@ -49,8 +49,6 @@ protected:
 
     // Создать список возможных неисправностей и их решений
     virtual std::vector<Malfunction> createMalfunctions() = 0;
-    // Применить решение, вернуть баллы
-    virtual int applySolution(const Solution& solution) = 0;
 
 public:
     Device(const std::string & name) : name_(name) {}
@@ -62,18 +60,18 @@ public:
     void addMalfunctions(const Malfunction& malfunction);
 
     void clearMalfunctions() {
-        activeMalfunctions.clear();
+        activeMalfunctions_.clear();
         resetMalfunction();
     }
 
     const std::vector<Malfunction>& getActiveMalfunctions() const {
-        return activeMalfunctions; 
+        return activeMalfunctions_; 
     }
     std::vector<Malfunction> getMalfunctions() const {
-        return malfunctions;  // Возврается список созданный в конструкторе
+        return malfunctions_;  // Возврается список созданный в конструкторе
     }
     std::string getName() const { return name_; }
-    const std::unordered_map<DeviceParameter, ParamValue> &getParams() const { return params; }
+    const std::unordered_map<DeviceParameter, ParamValue> &getParams() const { return params_; }
 
 private:
     void applyMalfunctionEffect();

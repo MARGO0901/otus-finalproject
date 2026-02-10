@@ -7,18 +7,18 @@ using namespace literals;
 
 namespace {
     bool _ = []() {
-        DeviceRegistry::registerType<Fan>("Fan");
+        DeviceRegistry::registerType<Fan>("Вентилятор");
         return true;
     }();
 }
 
 
-Fan::Fan() : Device("Fan") {
-    params.emplace(DeviceParameter("Rpm", {0, 2000}, {1200, 1500}), 1350_rpm);
-    params.emplace(DeviceParameter("Current", {5.f, 20.f}, { 8.f, 12.f}), 10._amper);
-    params.emplace(DeviceParameter("Temperature", {20.f, 120.f}, {40.f, 70.f}), 65._celsies);
+Fan::Fan() : Device("Вентилятор") {
+    params_.emplace(DeviceParameter("Обороты", {0, 2000}, {1200, 1500}), 1350_rpm);
+    params_.emplace(DeviceParameter("Ток", {5.f, 20.f}, { 8.f, 12.f}), 10._amper);
+    params_.emplace(DeviceParameter("Температура", {20.f, 120.f}, {40.f, 70.f}), 65._celsies);
 
-    malfunctions = createMalfunctions();
+    malfunctions_ = createMalfunctions();
 }
 
 
@@ -33,25 +33,19 @@ std::vector<Malfunction> Fan::createMalfunctions() {
 }
 
 
-int Fan::applySolution(const Solution& solution) {
-    return 0;
-}
-
-
 Malfunction Fan::createLowRpm() {
     // неисправность "Низкие обороты"
     Malfunction lowRpm;
-    lowRpm.name = "Низкие обороты";
-    lowRpm.description = "Rpm under 1200";
+    lowRpm.name_ = "Низкие обороты";
     
-    // Условия
-    lowRpm.conditions["Rpm"] = {0, 1199};
+    // Условия: Rpm under 1200
+    lowRpm.conditions_["Обороты"] = {0, 1199};
     
     // Создание решений   
-    lowRpm.solutions.push_back(Optimal("Проверить щетки, измерить напряжение", 100));
-    lowRpm.solutions.push_back(Accept("Почистить воздуховод, увеличить скорость", 80));
-    lowRpm.solutions.push_back(Critical("Заменить двигатель", 40));
-    lowRpm.solutions.push_back(Failure("Вручную раскрутить лопасти", 0));
+    lowRpm.solutions_.push_back(Optimal("Проверить щетки, измерить напряжение", 100));
+    lowRpm.solutions_.push_back(Accept("Почистить воздуховод, увеличить скорость", 80));
+    lowRpm.solutions_.push_back(Critical("Заменить двигатель", 40));
+    lowRpm.solutions_.push_back(Failure("Вручную раскрутить лопасти", 0));
 
     return lowRpm;
 }
@@ -60,17 +54,16 @@ Malfunction Fan::createLowRpm() {
 Malfunction Fan::createOverheat() {
     // неисправность "Перегрев"
     Malfunction overheating;
-    overheating.name = "Перегрев";
-    overheating.description = "Temperature above 70°C";
+    overheating.name_ = "Перегрев";
     
     // Условия: температура должна быть > 70°C
-    overheating.conditions["Temperature"] = {71.0, 120.0};
+    overheating.conditions_["Температура"] = {71.0, 120.0};
     
     // Создание решений 
-    overheating.solutions.push_back(Optimal("Остановить, дать остыть, проверить ток", 100));
-    overheating.solutions.push_back(Accept("Снизить скорость, включить обдув", 70));
-    overheating.solutions.push_back(Critical("Временно отключить термозащиту", 30));
-    overheating.solutions.push_back(Failure("Залить корпус водой для охлаждения", 0));
+    overheating.solutions_.push_back(Optimal("Остановить, дать остыть, проверить ток", 100));
+    overheating.solutions_.push_back(Accept("Снизить скорость, включить обдув", 70));
+    overheating.solutions_.push_back(Critical("Временно отключить термозащиту", 30));
+    overheating.solutions_.push_back(Failure("Залить корпус водой для охлаждения", 0));
 
     return overheating;
 }
@@ -79,17 +72,16 @@ Malfunction Fan::createOverheat() {
 Malfunction Fan::createOverCurrent() {
     // неисправность "Повышенный ток"
     Malfunction overCurrent;
-    overCurrent.name = "Повышенный ток";
-    overCurrent.description = "Current above 12";
+    overCurrent.name_ = "Повышенный ток";
     
-    // Условия
-    overCurrent.conditions["Current"] = {13.0, 20.0};
+    // Условия: Current above 12
+    overCurrent.conditions_["Ток"] = {13.0, 20.0};
     
     // Создание решений 
-    overCurrent.solutions.push_back(Optimal("Проверить сопротивление обмоток", 100));
-    overCurrent.solutions.push_back(Accept("Снизить нагрузку на привод", 80));
-    overCurrent.solutions.push_back(Critical("Увеличить напряжение на 10%", 20));
-    overCurrent.solutions.push_back(Failure("Заменить предохранитель на более мощный", 0));
+    overCurrent.solutions_.push_back(Optimal("Проверить сопротивление обмоток", 100));
+    overCurrent.solutions_.push_back(Accept("Снизить нагрузку на привод", 80));
+    overCurrent.solutions_.push_back(Critical("Увеличить напряжение на 10%", 20));
+    overCurrent.solutions_.push_back(Failure("Заменить предохранитель на более мощный", 0));
 
     return overCurrent;
 }

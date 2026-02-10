@@ -9,7 +9,6 @@ public:
     TestDevice() : Device("TestDevice") {}
 
     std::vector<Malfunction> createMalfunctions() override { return std::vector<Malfunction>(); }
-    int applySolution(const Solution& solution) override { return 0; }
 };
 
 struct DeviceRegistryFixture  {

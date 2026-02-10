@@ -1,16 +1,20 @@
 #include <game.h>
 
 #include <iostream>
+#include <locale>
 
 void setupConsoleWindow() {
     std::cout << "\033[8;35;140t";      // высота = 40, ширина = 120
+
+    std::locale::global(std::locale(""));
+    std::cout.imbue(std::locale());
 }
 
 int main() {
 
     setupConsoleWindow();
 
-    Game game({"Fan", "Pump","Compressor"});
+    Game game({"Насос", "Вентилятор","Компрессор"});
     game.startGame();
 
     // Ждем, пока running не станет false

@@ -18,7 +18,6 @@ set_target_properties(penguin PROPERTIES
 target_sources(penguin PRIVATE
     src/main.cpp 
     src/game.cpp 
-    src/malfunction.cpp 
     src/observers/penguin.cpp 
     src/observers/observer.cpp
     src/devices/device.cpp

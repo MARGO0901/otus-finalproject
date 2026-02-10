@@ -6,7 +6,7 @@
 class Compressor : public Device {
 public:
     Compressor();
-    int applySolution(const Solution& solution) override;
+
     std::vector<Malfunction> createMalfunctions() override;
 
 private:

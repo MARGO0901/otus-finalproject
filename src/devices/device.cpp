@@ -4,7 +4,7 @@
 #include "consolemanager.h"
 
 void Device::update() {
-    for(auto& [param, value] : params) {
+    for(auto& [param, value] : params_) {
         std::visit([param_ptr = &param, this](auto& val) -> void {
             optChangeParam(*param_ptr, val);
         }, value);            
@@ -15,31 +15,32 @@ void Device::update() {
 
 
 void Device::applyMalfunctionEffect() {
-    for(const auto& malfunction : activeMalfunctions) {
+    for(const auto& malfunction : activeMalfunctions_) {
         applyMalfunction(malfunction);
     }
 }
 
 
 void Device::applyMalfunction(const Malfunction& malfunction) {
+    /*
     {
         std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());   
-        ConsoleManager::printDebug("Device: " + this->name_ + " Applying malfunction: " + malfunction.name);
-    }
+        ConsoleManager::printDebug("Device: " + this->name_ + " Applying malfunction: " + malfunction.name_);
+    }*/
 
-    for (auto& param_value : params) {
+    for (auto& param_value : params_) {
         DeviceParameter& param = const_cast<DeviceParameter&>(param_value.first); 
         auto& value = param_value.second;
 
-        auto it = malfunction.conditions.find(param.name_);
-        if (it != malfunction.conditions.end()) {
-
+        auto it = malfunction.conditions_.find(param.name_);
+        if (it != malfunction.conditions_.end()) {
+            /*
             {
                 std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
                 ConsoleManager::printDebug("  Parameter: " + param.name_ 
                         + ", range: [" + std::to_string(it->second.first) 
                         + ", " + std::to_string(it->second.second) + "]" , 21);
-            }
+            }*/
 
             param.currentRange_ = it->second;
         }
@@ -48,7 +49,7 @@ void Device::applyMalfunction(const Malfunction& malfunction) {
 
 
 void Device::resetMalfunction() {
-    for (auto& param_value : params) {
+    for (auto& param_value : params_) {
 
         DeviceParameter& param = const_cast<DeviceParameter&>(param_value.first); 
         auto& value = param_value.second;
@@ -72,11 +73,11 @@ void Device::resetMalfunction() {
             }
         }, value);
     }
-    activeMalfunctions.clear();
+    activeMalfunctions_.clear();
 }
 
 void Device::addMalfunctions(const Malfunction& malfunction) {
-    activeMalfunctions.push_back(malfunction);
+    activeMalfunctions_.push_back(malfunction);
 }
 
 

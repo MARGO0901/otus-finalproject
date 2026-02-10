@@ -1,14 +1,14 @@
 #include <observers/penguin.h>
 #include <consolemanager.h>
 
-Penguin::Penguin(bool is_drawing) : mood("normal"), currentMessage("Привет! Введи 'start', чтобы начать") {
+Penguin::Penguin(bool is_drawing) : mood_("normal"), currentMessage_("Привет! Введи 'start', чтобы начать") {
     if (is_drawing)
         drawPenguin();
 }
 
 
 void Penguin::drawPenguin() {
-    std::string emoji = "  ('v')   " + currentMessage + "\n";
+    std::string emoji = "  ('v')   " + currentMessage_ + "\n";
 
     std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
 
@@ -23,14 +23,14 @@ void Penguin::drawPenguin() {
 // Обновляем только лицо и сообщение
 void Penguin::updateFace() {
     std::string emoji;
-    if (mood == "happy") {
-        emoji = "  (^v^)   " + currentMessage;
-    } else if(mood == "sad") {
-        emoji = "  (´v`)   " + currentMessage;
-    } else if (mood == "angry") {
-        emoji = "  (>v<)   " + currentMessage;
+    if (mood_ == "happy") {
+        emoji = "  (^v^)   " + currentMessage_;
+    } else if(mood_ == "sad") {
+        emoji = "  (´v`)   " + currentMessage_;
+    } else if (mood_ == "angry") {
+        emoji = "  (>v<)   " + currentMessage_;
     } else {
-        emoji = "  ('v')   " + currentMessage;
+        emoji = "  ('v')   " + currentMessage_;
     }
 
     std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
@@ -45,12 +45,12 @@ void Penguin::updateFace() {
 
 void Penguin::displayMessage(const std::string &message)
 {
-    currentMessage = message;
+    currentMessage_ = message;
     updateFace();
 }
 
 
 void Penguin::setMood(const std::string &newMood)
 {
-    mood = newMood;
+    mood_ = newMood;
 }

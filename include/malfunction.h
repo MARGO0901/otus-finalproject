@@ -6,13 +6,13 @@
 
 struct Solution {
     Solution(const std::string& desc = "", int sc = 0, const std::string& cmt = "")
-        : description(desc), score(sc), comment(cmt) {}
+        : description_(desc), score_(sc), comment_(cmt) {}
 
     virtual ~Solution() = default;
 
-    std::string description;
-    int score;
-    std::string comment;
+    std::string description_;
+    int score_;
+    std::string comment_;
 };
 
 
@@ -42,14 +42,10 @@ public:
 
 class Malfunction {
 public: 
-    std::string name;               // "Перегрев"
-    std::string description;        // "Температура выше нормы"
+    std::string name_;               // "Перегрев"
 
     // Условия активации: {"температура", {min, max}}
-    std::map<std::string, std::pair<double, double>> conditions;
+    std::map<std::string, std::pair<double, double>> conditions_;
     //Варианты решений
-    std::vector<Solution> solutions;
-
-    // Проверить, активна ли неисправность для данных параметров
-    //bool isActive(const std::unordered_map<std::string, ParamValue> &params) const;
+    std::vector<Solution> solutions_;
 };

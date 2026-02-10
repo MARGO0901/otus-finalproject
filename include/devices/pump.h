@@ -8,7 +8,6 @@ class Pump : public Device {
 public:
     Pump();
 
-    int applySolution(const Solution& solution) override;
     std::vector<Malfunction> createMalfunctions() override; 
 
 private:

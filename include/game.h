@@ -13,11 +13,11 @@
 #include "observers/observer.h"
 
 struct CurrentTask {
-    int deviceIndex;
-    Malfunction malfunction;
-    std::vector<Solution> shuffledSolutions;
-    int selectedSolutionIndex = -1;
-    int correctPoints = 0;          //очки за ответ
+    int deviceIndex_;
+    Malfunction malfunction_;
+    std::vector<Solution> shuffledSolutions_;
+    int selectedSolutionIndex_ = -1;
+    int correctPoints_ = 0;          //очки за ответ
 };
 
 
@@ -25,37 +25,35 @@ class Game {
 public:
     enum class State {
         MENU, 
-        PLAYING, 
-        GAME_OVER, 
-        EXIT
+        PLAYING
     };
 
 private:
-    std::thread inputThread;    // ввод пользователя
-    std::thread mainThread;     // основная логика ( UI + уровень )
-    std::thread deviceThread;   // обновление состояния приборов
+    std::thread inputThread_;    // ввод пользователя
+    std::thread mainThread_;     // основная логика ( UI + уровень )
+    std::thread deviceThread_;   // обновление состояния приборов
 
     // состояние игры
-    State currentState{State::MENU};
-    std::atomic<bool> running{false};
+    State currentState_{State::MENU};
+    std::atomic<bool> running_{false};
 
     // синхронизация
-    std::mutex startMutex;
-    std::condition_variable startCV;
+    std::mutex startMutex_;
+    std::condition_variable startCV_;
 
     // ввод
-    std::mutex inputMutex;
-    std::string inputBuffer;
+    std::mutex inputMutex_;
+    std::string inputBuffer_;
 
     // устройства
-    std::vector<std::unique_ptr<Device>> devices;
-    std::mutex deviceMutex;
-    bool needsRedrawDevice{false};     // Флаг необходимости перерисовки приборов
+    std::vector<std::unique_ptr<Device>> devices_;
+    std::mutex deviceMutex_;
+    bool needsRedrawDevice_{false};     // Флаг необходимости перерисовки приборов
 
     // игровые данные
-    int currentLevel;
-    int totalScore;                     // общий балл за игру
-    int maxScore;                  // максимальное кол-во баллов на данный момент
+    int currentLevel_;
+    int totalScore_;                     // общий балл за игру
+    int maxScore_;                  // максимальное кол-во баллов на данный момент
 
     // наблюдатели
     ObserverManager observerManager_;
@@ -77,10 +75,9 @@ private:
     // обработка команд
     void processCommand(std::string &cmd);
     void handleMenuCommand(const std::string& command);
-    void handleGameCommand(const std::string& command);
 
     // игровая логика
-    void runLevelInLoop(int level);
+    void runLevelInLoop();
     std::vector<CurrentTask> generateProblemsWithSolutions(int count);
     bool askToSelectDevice(int& selectedIndex);
     void showProblemAndSolutions(const CurrentTask& task);

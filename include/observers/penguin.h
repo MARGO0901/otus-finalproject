@@ -6,9 +6,9 @@
 
 class Penguin : public IObserver {
 private:
-    std::string mood;       // "happy", "sad", "thinking"
-    std::string currentMessage;
-    bool is_drawing = true;
+    std::string mood_;       // "happy", "sad", "thinking"
+    std::string currentMessage_;
+    bool is_drawing_ = true;
         
     void drawPenguin();
     void updateFace();
@@ -24,7 +24,7 @@ public:
     }
     void updateMood(const std::string& newMood) override {
         // Это сообщение для показа пингвином
-        mood = newMood;
+        mood_ = newMood;
         updateFace();
     }
 };
