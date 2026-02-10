@@ -62,13 +62,13 @@ Real-time обновление: Отображение параметров пр
 
 ## Установка и удаление
 1. Скачать deb-пакет:
-'wget *ссылка*'
+`wget https://github.com/MARGO0901/otus-finalproject/releases/download/39/penguin-0.0.39-Linux.deb`
 2. Установить:
-'sudo dpkg -i penguin-0.0.38-Linux.deb'
+`sudo dpkg -i penguin-0.0.38-Linux.deb`
 3. Найти программу
-'dpkg -L penguin-0.0.38-Linux | grep bin'
+`dpkg -L penguin-0.0.38-Linux | grep bin`
 4. Запустить:
-'penguin'
+`penguin`
 5. Удалить:
-'sudo dpkg -r penguin'
+`sudo dpkg -r penguin`
 
