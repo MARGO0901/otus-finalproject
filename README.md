@@ -61,15 +61,16 @@ Real-time обновление: Отображение параметров пр
 **Диаграмма** [diagram.drawio](diagram.drawio)
 
 ## Установка и удаление
-1. Скачать deb-пакет:
+1. Скачать deb-пакет:  
 `wget https://github.com/MARGO0901/otus-finalproject/releases/download/latest/penguin-0.0.39-Linux.deb`
-2. Установить:
+2. Установить:  
 `sudo dpkg -i penguin-latest-Linux.deb`
-3. Найти программу
+3. Найти программу  
 `dpkg -L penguin | grep bin`
-4. Запустить:
+4. Запустить:  
 `penguin`
-5. Удалить:
+5. Удалить:  
 `sudo dpkg -r penguin`
+
 *Примечание: всегда доступна latest версия. Конкретные версии смотрите в [релизах](https://github.com/MARGO0901/otus-finalproject/releases).*
 
