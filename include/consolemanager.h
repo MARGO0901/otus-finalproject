@@ -56,7 +56,10 @@ public:
     }
 
     static void clearScreen() {
-        std::cout << "\033[2J\033[H" << std::flush;
+        std::cout << "\033c";      // Сброс терминала (полная очистка)
+        std::cout << "\033[2J";    // Очистить экран
+        std::cout << "\033[H";     // Курсор в начало
+        std::cout.flush();
     }
     
     static void hideCursor() {
@@ -140,14 +143,11 @@ public:
     }
 
     static void printLevel(int level, int score, int max) {
-        std::cout << "\033[" << LEVEL_LINE << ";1H\033[2K" << std::flush;
-        std::cout << "Уровень: " << level << " Счет: " << score << "/" << max << std::flush;
+        if (level != 0) {
+            std::cout << "\033[" << LEVEL_LINE << ";1H\033[2K" << std::flush;
+            std::cout << "Уровень: " << level << " Счет: " << score << "/" << max << std::flush;
+        }
     }
-
-    static void gotoExitLine() {
-        std::cout << "\033[" << getInputLine() + 1 << ";1H\033[2K" << std::flush;
-    }
-
 };
 
 inline std::mutex ConsoleManager::consoleMutex_;

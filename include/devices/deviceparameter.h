@@ -16,9 +16,9 @@ struct DeviceParameter {
     }
 
     std::string name_;
-    std::pair<double, double> range_;           // Абсолютный диапазон
-    std::pair<double, double> optRange_;        // Нормальный рабочий диапазон
-    std::pair<double, double> currentRange_;    // Текущие границы (могут меняться при неисправности)
+    std::pair<double, double> range_;                   // Абсолютный диапазон
+    std::pair<double, double> optRange_;                // Нормальный рабочий диапазон
+    mutable std::pair<double, double> currentRange_;    // Текущие границы (могут меняться при неисправности)
 };
 
 // Специализация std::hash для DeviceParameter

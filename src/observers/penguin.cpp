@@ -45,7 +45,9 @@ void Penguin::updateFace() {
 
 void Penguin::displayMessage(const std::string &message)
 {
-    currentMessage_ = message;
+    if (!message.empty()) {
+        currentMessage_ = message;
+    }
     updateFace();
 }
 

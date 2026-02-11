@@ -59,3 +59,15 @@ void ObserverManager::cleanupObservers() {
 size_t ObserverManager::countObservers() const {
     return observers_.size();
 }
+
+void ObserverManager::notifyRedraw() {
+    cleanupObservers();
+    for (auto it = observers_.begin(); it != observers_.end();) {
+        if (auto observer = it->lock()) {
+            observer->updateBody();
+            ++it;
+        } else {
+            it = observers_.erase(it);
+        }
+    }
+}

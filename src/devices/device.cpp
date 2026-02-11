@@ -28,10 +28,7 @@ void Device::applyMalfunction(const Malfunction& malfunction) {
         ConsoleManager::printDebug("Device: " + this->name_ + " Applying malfunction: " + malfunction.name_);
     }*/
 
-    for (auto& param_value : params_) {
-        DeviceParameter& param = const_cast<DeviceParameter&>(param_value.first); 
-        auto& value = param_value.second;
-
+    for (auto& [param, value] : params_) {
         auto it = malfunction.conditions_.find(param.name_);
         if (it != malfunction.conditions_.end()) {
             /*
@@ -51,7 +48,7 @@ void Device::applyMalfunction(const Malfunction& malfunction) {
 void Device::resetMalfunction() {
     for (auto& param_value : params_) {
 
-        DeviceParameter& param = const_cast<DeviceParameter&>(param_value.first); 
+        const auto& param = param_value.first; 
         auto& value = param_value.second;
 
         // Возвращаем текущие диапазоны к нормальным

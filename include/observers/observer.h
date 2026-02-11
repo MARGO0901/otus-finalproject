@@ -10,6 +10,7 @@ public:
     virtual ~IObserver() = default;
     virtual void updateMessage(const std::string& message) = 0;
     virtual void updateMood(const std::string& mood) = 0;
+    virtual void updateBody() = 0;
 };
 
 
@@ -26,4 +27,5 @@ public:
     void notifyMood(const std::string& message);
     void cleanupObservers();                        // для очистки мертвых указателей
     size_t countObservers() const;
+    void notifyRedraw();
 };

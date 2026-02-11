@@ -71,7 +71,27 @@ void Game::exitGame() {
     }
 
     std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
-    ConsoleManager::gotoExitLine();
+    ConsoleManager::clearScreen();
+}
+
+void Game::redrawAll() {
+    {
+        std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+
+        // 1. Восстанавливаем размер
+        std::cout << "\033[8;" << 35 << ";" << 140 << "t";
+        
+        ConsoleManager::clearScreen();
+        ConsoleManager::printMenu();
+        ConsoleManager::printLevel(currentLevel_, totalScore_, maxScore_);
+        ConsoleManager::showPrompt();
+    }
+    observerManager_.notifyRedraw();
+    observerManager_.notifyMood("");
+    observerManager_.notifyMessage("");
+
+    std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
+    ConsoleManager::gotoInputLine();
 }
 
 
@@ -318,6 +338,10 @@ void Game::runLevelInLoop() {
 
                 // Убрать неисправность из прибора
                 devices_[selectedIndex]->clearMalfunctions();
+                showDevicesStatus();
+
+                // Пауза для чтения
+                std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
                 if (!currentTasks.empty()) {
                     observerManager_.notifyMood("neutral");
@@ -369,7 +393,7 @@ std::vector<CurrentTask> Game::generateProblemsWithSolutions(int count) {
         if(!possibleMalfunctions.empty()) {
             int malfunctionIndex = rand() % possibleMalfunctions.size();
             Malfunction selectedMalfunction = possibleMalfunctions[malfunctionIndex];
-            
+
             /*
             {
                 std::lock_guard<std::mutex> lock(ConsoleManager::getMutex());
@@ -526,9 +550,6 @@ void Game::checkAndScore(CurrentTask& task) {
         ConsoleManager::clearActionArea();
         ConsoleManager::restorePosition();
     }
-    
-    // Пауза для чтения
-    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 }
 
 
@@ -628,11 +649,11 @@ void Game::clearDeviceMalfunctions() {
 
 
 std::string Game::getQualification() const {
-    if(totalScore_ >= 1600) return "expert";
-    if(totalScore_ >= 1400) return "specialist";
-    if(totalScore_ >= 1200) return "operator";
-    if(totalScore_ >= 1000) return "improver";
-    return "student";
+    if(totalScore_ >= 1600) return "эксперт";
+    if(totalScore_ >= 1400) return "специалист";
+    if(totalScore_ >= 1200) return "оператор";
+    if(totalScore_ >= 1000) return "стажер";
+    return "ученик";
 }
 
 
@@ -643,6 +664,7 @@ void Game::updateScore(int points) {
 
 void Game::stopGame(const std::string& mood, const std::string& msg) {
     currentState_ = State::MENU;
+    currentLevel_ = 0;
     clearDeviceMalfunctions();
 
     observerManager_.notifyMood(mood);

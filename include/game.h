@@ -66,6 +66,9 @@ public:
     void exitGame();
     bool isRunning() const;
 
+    //перерисовка
+    void redrawAll();
+
 private:
     // потоки
     void inputLoop();

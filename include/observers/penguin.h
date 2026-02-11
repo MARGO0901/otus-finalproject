@@ -23,8 +23,12 @@ public:
         displayMessage(message);
     }
     void updateMood(const std::string& newMood) override {
-        // Это сообщение для показа пингвином
-        mood_ = newMood;
+        if (!newMood.empty()) {
+            mood_ = newMood;
+        }
         updateFace();
+    }
+    void updateBody() override {
+        drawPenguin();
     }
 };
